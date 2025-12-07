@@ -18,7 +18,7 @@ func SeedExcuseEntries(db *gorm.DB) error {
 	}
 
 	var goals []models.Goal
-	if err := db.Preload("User").Find(&goals).Error; err != nil {
+	if err := db.Find(&goals).Error; err != nil {
 		return err
 	}
 
