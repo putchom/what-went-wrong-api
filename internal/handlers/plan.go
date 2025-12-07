@@ -29,6 +29,7 @@ func NewPlanHandler(entitlementService EntitlementManager) *PlanHandler {
 // @Accept json
 // @Produce json
 // @Success 200 {object} GetMePlanResponse
+// @Failure 500 {object} PlanInternalErrorResponse
 // @Router /me/plan [get]
 func (h *PlanHandler) GetMePlan(c *gin.Context) {
 	userIDStr, exists := c.Get("userID")
@@ -60,6 +61,8 @@ func (h *PlanHandler) GetMePlan(c *gin.Context) {
 // @Produce json
 // @Param request body PostMePlanRequest true "Request body"
 // @Success 200 {object} PostMePlanResponse
+// @Failure 400 {object} PlanValidationErrorResponse
+// @Failure 500 {object} PlanInternalErrorResponse
 // @Router /me/plan [post]
 func (h *PlanHandler) PostMePlan(c *gin.Context) {
 	userIDStr, exists := c.Get("userID")

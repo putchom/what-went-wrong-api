@@ -26,6 +26,8 @@ func NewGoalHandler(db *gorm.DB) *GoalHandler {
 // @Accept json
 // @Produce json
 // @Success 200 {object} GetGoalsResponse
+// @Failure 401 {object} GoalInternalErrorResponse "Unauthorized"
+// @Failure 500 {object} GoalInternalErrorResponse
 // @Router /goals [get]
 func (h *GoalHandler) GetGoals(c *gin.Context) {
 	userIDStr, exists := c.Get("userID")
@@ -64,7 +66,9 @@ func (h *GoalHandler) GetGoals(c *gin.Context) {
 // @Produce json
 // @Param request body CreateGoalRequest true "Request body"
 // @Success 201 {object} CreateGoalResponse
-// @Failure 403 {object} map[string]string "Forbidden if max goals reached"
+// @Failure 400 {object} GoalValidationErrorResponse
+// @Failure 403 {object} GoalLimitReachedResponse "Forbidden if max goals reached"
+// @Failure 500 {object} GoalInternalErrorResponse
 // @Router /goals [post]
 func (h *GoalHandler) PostGoals(c *gin.Context) {
 	userIDStr, exists := c.Get("userID")
@@ -136,6 +140,9 @@ func (h *GoalHandler) PostGoals(c *gin.Context) {
 // @Param id path string true "Goal ID"
 // @Param request body UpdateGoalRequest true "Request body"
 // @Success 200 {object} CreateGoalResponse
+// @Failure 400 {object} GoalValidationErrorResponse
+// @Failure 404 {object} GoalNotFoundErrorResponse
+// @Failure 500 {object} GoalInternalErrorResponse
 // @Router /goals/{id} [patch]
 func (h *GoalHandler) PatchGoal(c *gin.Context) {
 	goalID := c.Param("id")
@@ -194,6 +201,8 @@ func (h *GoalHandler) PatchGoal(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Goal ID"
 // @Success 204 "No Content"
+// @Failure 404 {object} GoalNotFoundErrorResponse
+// @Failure 500 {object} GoalInternalErrorResponse
 // @Router /goals/{id} [delete]
 func (h *GoalHandler) DeleteGoal(c *gin.Context) {
 	goalID := c.Param("id")

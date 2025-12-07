@@ -30,6 +30,8 @@ func NewExcuseHandler(db *gorm.DB) *ExcuseHandler {
 // @Param from query string false "From Date (YYYY-MM-DD)"
 // @Param to query string false "To Date (YYYY-MM-DD)"
 // @Success 200 {object} GetExcusesResponse
+// @Failure 400 {object} ExcuseValidationErrorResponse "Invalid Goal ID"
+// @Failure 500 {object} ExcuseInternalErrorResponse
 // @Router /goals/{goal_id}/excuses [get]
 func (h *ExcuseHandler) GetExcuses(c *gin.Context) {
 	userIdStr, exists := c.Get("userID")
@@ -101,6 +103,9 @@ func (h *ExcuseHandler) GetExcuses(c *gin.Context) {
 // @Produce json
 // @Param goal_id path string true "Goal ID"
 // @Success 200 {object} ExcuseResponse
+// @Failure 400 {object} ExcuseValidationErrorResponse "Invalid Goal ID"
+// @Failure 404 {object} ExcuseNotFoundResponse
+// @Failure 500 {object} ExcuseInternalErrorResponse
 // @Router /goals/{goal_id}/excuses/today [get]
 func (h *ExcuseHandler) GetExcuseToday(c *gin.Context) {
 	userIdStr, exists := c.Get("userID")
@@ -148,6 +153,9 @@ func (h *ExcuseHandler) GetExcuseToday(c *gin.Context) {
 // @Param goal_id path string true "Goal ID"
 // @Param request body CreateExcuseRequest true "Excuse Data"
 // @Success 201 {object} ExcuseResponse
+// @Failure 400 {object} ExcuseValidationErrorResponse
+// @Failure 403 {object} ExcuseForbiddenResponse
+// @Failure 500 {object} ExcuseInternalErrorResponse
 // @Router /goals/{goal_id}/excuses [post]
 func (h *ExcuseHandler) PostExcuse(c *gin.Context) {
 	userIdStr, _ := c.Get("userID")
@@ -223,6 +231,10 @@ func (h *ExcuseHandler) PostExcuse(c *gin.Context) {
 // @Param id path string true "Excuse ID"
 // @Param request body UpdateExcuseRequest true "Update Data"
 // @Success 200 {object} ExcuseResponse
+// @Failure 400 {object} ExcuseValidationErrorResponse
+// @Failure 403 {object} ExcuseForbiddenResponse
+// @Failure 404 {object} ExcuseNotFoundResponse
+// @Failure 500 {object} ExcuseInternalErrorResponse
 // @Router /excuses/{id} [patch]
 func (h *ExcuseHandler) PatchExcuse(c *gin.Context) {
 	idStr := c.Param("id")
@@ -278,6 +290,9 @@ func (h *ExcuseHandler) PatchExcuse(c *gin.Context) {
 // @Tags excuses
 // @Param id path string true "Excuse ID"
 // @Success 204 "No Content"
+// @Failure 400 {object} ExcuseValidationErrorResponse "Invalid Excuse ID"
+// @Failure 404 {object} ExcuseNotFoundResponse
+// @Failure 500 {object} ExcuseInternalErrorResponse
 // @Router /excuses/{id} [delete]
 func (h *ExcuseHandler) DeleteExcuse(c *gin.Context) {
 	idStr := c.Param("id")

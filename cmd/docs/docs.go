@@ -125,6 +125,18 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/handlers.ExcuseTemplateResponse"
                         }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.TemplateNotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.TemplateInternalErrorResponse"
+                        }
                     }
                 }
             }
@@ -147,6 +159,24 @@ const docTemplate = `{
                 "responses": {
                     "204": {
                         "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Invalid Excuse ID",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseValidationErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseNotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseInternalErrorResponse"
+                        }
                     }
                 }
             },
@@ -185,6 +215,30 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/handlers.ExcuseResponse"
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseValidationErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseForbiddenResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseNotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseInternalErrorResponse"
+                        }
                     }
                 }
             }
@@ -207,6 +261,18 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/handlers.GetGoalsResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GoalInternalErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GoalInternalErrorResponse"
                         }
                     }
                 }
@@ -241,13 +307,22 @@ const docTemplate = `{
                             "$ref": "#/definitions/handlers.CreateGoalResponse"
                         }
                     },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GoalValidationErrorResponse"
+                        }
+                    },
                     "403": {
                         "description": "Forbidden if max goals reached",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/handlers.GoalLimitReachedResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GoalInternalErrorResponse"
                         }
                     }
                 }
@@ -293,6 +368,18 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/handlers.GetExcusesResponse"
                         }
+                    },
+                    "400": {
+                        "description": "Invalid Goal ID",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseValidationErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseInternalErrorResponse"
+                        }
                     }
                 }
             },
@@ -332,6 +419,24 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/handlers.ExcuseResponse"
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseValidationErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseInternalErrorResponse"
+                        }
                     }
                 }
             }
@@ -363,6 +468,24 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/handlers.ExcuseResponse"
                         }
+                    },
+                    "400": {
+                        "description": "Invalid Goal ID",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseValidationErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseNotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseInternalErrorResponse"
+                        }
                     }
                 }
             }
@@ -391,6 +514,18 @@ const docTemplate = `{
                 "responses": {
                     "204": {
                         "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GoalNotFoundErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GoalInternalErrorResponse"
+                        }
                     }
                 }
             },
@@ -429,6 +564,24 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/handlers.CreateGoalResponse"
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GoalValidationErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GoalNotFoundErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GoalInternalErrorResponse"
+                        }
                     }
                 }
             }
@@ -451,6 +604,12 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/handlers.GetMePlanResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.PlanInternalErrorResponse"
                         }
                     }
                 }
@@ -483,6 +642,18 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/handlers.PostMePlanResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.PlanValidationErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.PlanInternalErrorResponse"
                         }
                     }
                 }
@@ -539,14 +710,17 @@ const docTemplate = `{
             "properties": {
                 "date": {
                     "description": "YYYY-MM-DD",
-                    "type": "string"
+                    "type": "string",
+                    "example": "2023-10-27"
                 },
                 "excuseText": {
                     "type": "string",
-                    "maxLength": 500
+                    "maxLength": 500,
+                    "example": "I overslept."
                 },
                 "templateId": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "template_123"
                 }
             }
         },
@@ -557,14 +731,17 @@ const docTemplate = `{
             ],
             "properties": {
                 "notificationEnabled": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": true
                 },
                 "notificationTime": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "20:00"
                 },
                 "title": {
                     "type": "string",
-                    "maxLength": 200
+                    "maxLength": 200,
+                    "example": "Read 10 pages"
                 }
             }
         },
@@ -576,6 +753,33 @@ const docTemplate = `{
                 }
             }
         },
+        "handlers.ExcuseForbiddenResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "Premium template entitlement required"
+                }
+            }
+        },
+        "handlers.ExcuseInternalErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "Failed to create excuse"
+                }
+            }
+        },
+        "handlers.ExcuseNotFoundResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "Excuse not found"
+                }
+            }
+        },
         "handlers.ExcuseResponse": {
             "type": "object",
             "properties": {
@@ -583,19 +787,24 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "date": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2023-10-27"
                 },
                 "excuseText": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "I overslept."
                 },
                 "goalId": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440001"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
                 },
                 "templateId": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "template_123"
                 },
                 "updatedAt": {
                     "type": "string"
@@ -609,22 +818,39 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "excuseText": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "My dog ate my homework."
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "template_123"
                 },
                 "isPremium": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": false
                 },
                 "packId": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "pack_abc"
                 },
                 "tags": {
                     "type": "array",
                     "items": {
                         "type": "string"
-                    }
+                    },
+                    "example": [
+                        "funny",
+                        "classic"
+                    ]
+                }
+            }
+        },
+        "handlers.ExcuseValidationErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "Key: 'CreateExcuseRequest.Date' Error:Field validation for 'Date' failed on the 'required' tag"
                 }
             }
         },
@@ -665,10 +891,43 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "entitlements": {
-                    "$ref": "#/definitions/services.Entitlements"
+                    "description": "Entitlements struct might need examples in its own definition if not here",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/services.Entitlements"
+                        }
+                    ]
                 },
                 "plan": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "premium"
+                }
+            }
+        },
+        "handlers.GoalInternalErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "Failed to fetch goals"
+                }
+            }
+        },
+        "handlers.GoalLimitReachedResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "Maximum goal limit reached for your plan"
+                }
+            }
+        },
+        "handlers.GoalNotFoundErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "Goal not found"
                 }
             }
         },
@@ -679,22 +938,36 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
                 },
                 "notificationEnabled": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": true
                 },
                 "notificationTime": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "20:00"
                 },
                 "order": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 },
                 "title": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Read 10 pages"
                 },
                 "updatedAt": {
                     "type": "string"
+                }
+            }
+        },
+        "handlers.GoalValidationErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "Key: 'CreateGoalRequest.Title' Error:Field validation for 'Title' failed on the 'required' tag"
                 }
             }
         },
@@ -707,6 +980,24 @@ const docTemplate = `{
                 }
             }
         },
+        "handlers.PlanInternalErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "Failed to get plan"
+                }
+            }
+        },
+        "handlers.PlanValidationErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "Key: 'PostMePlanRequest.Plan' Error:Field validation for 'Plan' failed on the 'required' tag"
+                }
+            }
+        },
         "handlers.PostMePlanRequest": {
             "type": "object",
             "required": [
@@ -714,7 +1005,8 @@ const docTemplate = `{
             ],
             "properties": {
                 "plan": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "premium"
                 }
             }
         },
@@ -725,7 +1017,8 @@ const docTemplate = `{
                     "$ref": "#/definitions/services.Entitlements"
                 },
                 "plan": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "premium"
                 }
             }
         },
@@ -738,15 +1031,35 @@ const docTemplate = `{
                 }
             }
         },
+        "handlers.TemplateInternalErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "Failed to fetch templates"
+                }
+            }
+        },
+        "handlers.TemplateNotFoundResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "Template not found"
+                }
+            }
+        },
         "handlers.UpdateExcuseRequest": {
             "type": "object",
             "properties": {
                 "excuseText": {
                     "type": "string",
-                    "maxLength": 500
+                    "maxLength": 500,
+                    "example": "I overslept a lot."
                 },
                 "templateId": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "template_123"
                 }
             }
         },
@@ -754,14 +1067,17 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "notificationEnabled": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": false
                 },
                 "notificationTime": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "21:00"
                 },
                 "title": {
                     "type": "string",
-                    "maxLength": 200
+                    "maxLength": 200,
+                    "example": "Read 20 pages"
                 }
             }
         },

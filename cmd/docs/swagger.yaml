@@ -32,11 +32,14 @@ definitions:
     properties:
       date:
         description: YYYY-MM-DD
+        example: "2023-10-27"
         type: string
       excuseText:
+        example: I overslept.
         maxLength: 500
         type: string
       templateId:
+        example: template_123
         type: string
     required:
     - date
@@ -45,10 +48,13 @@ definitions:
   handlers.CreateGoalRequest:
     properties:
       notificationEnabled:
+        example: true
         type: boolean
       notificationTime:
+        example: "20:00"
         type: string
       title:
+        example: Read 10 pages
         maxLength: 200
         type: string
     required:
@@ -59,19 +65,42 @@ definitions:
       goal:
         $ref: '#/definitions/handlers.GoalResponse'
     type: object
+  handlers.ExcuseForbiddenResponse:
+    properties:
+      error:
+        example: Premium template entitlement required
+        type: string
+    type: object
+  handlers.ExcuseInternalErrorResponse:
+    properties:
+      error:
+        example: Failed to create excuse
+        type: string
+    type: object
+  handlers.ExcuseNotFoundResponse:
+    properties:
+      error:
+        example: Excuse not found
+        type: string
+    type: object
   handlers.ExcuseResponse:
     properties:
       createdAt:
         type: string
       date:
+        example: "2023-10-27"
         type: string
       excuseText:
+        example: I overslept.
         type: string
       goalId:
+        example: 550e8400-e29b-41d4-a716-446655440001
         type: string
       id:
+        example: 550e8400-e29b-41d4-a716-446655440000
         type: string
       templateId:
+        example: template_123
         type: string
       updatedAt:
         type: string
@@ -81,17 +110,31 @@ definitions:
       createdAt:
         type: string
       excuseText:
+        example: My dog ate my homework.
         type: string
       id:
+        example: template_123
         type: string
       isPremium:
+        example: false
         type: boolean
       packId:
+        example: pack_abc
         type: string
       tags:
+        example:
+        - funny
+        - classic
         items:
           type: string
         type: array
+    type: object
+  handlers.ExcuseValidationErrorResponse:
+    properties:
+      error:
+        example: 'Key: ''CreateExcuseRequest.Date'' Error:Field validation for ''Date''
+          failed on the ''required'' tag'
+        type: string
     type: object
   handlers.GetExcuseTemplatesResponse:
     properties:
@@ -117,8 +160,30 @@ definitions:
   handlers.GetMePlanResponse:
     properties:
       entitlements:
-        $ref: '#/definitions/services.Entitlements'
+        allOf:
+        - $ref: '#/definitions/services.Entitlements'
+        description: Entitlements struct might need examples in its own definition
+          if not here
       plan:
+        example: premium
+        type: string
+    type: object
+  handlers.GoalInternalErrorResponse:
+    properties:
+      error:
+        example: Failed to fetch goals
+        type: string
+    type: object
+  handlers.GoalLimitReachedResponse:
+    properties:
+      error:
+        example: Maximum goal limit reached for your plan
+        type: string
+    type: object
+  handlers.GoalNotFoundErrorResponse:
+    properties:
+      error:
+        example: Goal not found
         type: string
     type: object
   handlers.GoalResponse:
@@ -126,16 +191,28 @@ definitions:
       createdAt:
         type: string
       id:
+        example: 550e8400-e29b-41d4-a716-446655440000
         type: string
       notificationEnabled:
+        example: true
         type: boolean
       notificationTime:
+        example: "20:00"
         type: string
       order:
+        example: 1
         type: integer
       title:
+        example: Read 10 pages
         type: string
       updatedAt:
+        type: string
+    type: object
+  handlers.GoalValidationErrorResponse:
+    properties:
+      error:
+        example: 'Key: ''CreateGoalRequest.Title'' Error:Field validation for ''Title''
+          failed on the ''required'' tag'
         type: string
     type: object
   handlers.InternalErrorResponse:
@@ -144,9 +221,23 @@ definitions:
         example: Failed to generate excuses
         type: string
     type: object
+  handlers.PlanInternalErrorResponse:
+    properties:
+      error:
+        example: Failed to get plan
+        type: string
+    type: object
+  handlers.PlanValidationErrorResponse:
+    properties:
+      error:
+        example: 'Key: ''PostMePlanRequest.Plan'' Error:Field validation for ''Plan''
+          failed on the ''required'' tag'
+        type: string
+    type: object
   handlers.PostMePlanRequest:
     properties:
       plan:
+        example: premium
         type: string
     required:
     - plan
@@ -156,6 +247,7 @@ definitions:
       entitlements:
         $ref: '#/definitions/services.Entitlements'
       plan:
+        example: premium
         type: string
     type: object
   handlers.PremiumRequiredResponse:
@@ -164,21 +256,38 @@ definitions:
         example: This feature requires a premium plan
         type: string
     type: object
+  handlers.TemplateInternalErrorResponse:
+    properties:
+      error:
+        example: Failed to fetch templates
+        type: string
+    type: object
+  handlers.TemplateNotFoundResponse:
+    properties:
+      error:
+        example: Template not found
+        type: string
+    type: object
   handlers.UpdateExcuseRequest:
     properties:
       excuseText:
+        example: I overslept a lot.
         maxLength: 500
         type: string
       templateId:
+        example: template_123
         type: string
     type: object
   handlers.UpdateGoalRequest:
     properties:
       notificationEnabled:
+        example: false
         type: boolean
       notificationTime:
+        example: "21:00"
         type: string
       title:
+        example: Read 20 pages
         maxLength: 200
         type: string
     type: object
@@ -279,6 +388,14 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/handlers.ExcuseTemplateResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.TemplateNotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.TemplateInternalErrorResponse'
       summary: Get template details
       tags:
       - excuse-templates
@@ -293,6 +410,18 @@ paths:
       responses:
         "204":
           description: No Content
+        "400":
+          description: Invalid Excuse ID
+          schema:
+            $ref: '#/definitions/handlers.ExcuseValidationErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ExcuseNotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ExcuseInternalErrorResponse'
       summary: Delete an excuse
       tags:
       - excuses
@@ -318,6 +447,22 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/handlers.ExcuseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ExcuseValidationErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ExcuseForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ExcuseNotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ExcuseInternalErrorResponse'
       summary: Update an excuse
       tags:
       - excuses
@@ -333,6 +478,14 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/handlers.GetGoalsResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.GoalInternalErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.GoalInternalErrorResponse'
       summary: List goals
       tags:
       - goals
@@ -354,12 +507,18 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/handlers.CreateGoalResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.GoalValidationErrorResponse'
         "403":
           description: Forbidden if max goals reached
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/handlers.GoalLimitReachedResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.GoalInternalErrorResponse'
       summary: Create goal
       tags:
       - goals
@@ -390,6 +549,14 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/handlers.GetExcusesResponse'
+        "400":
+          description: Invalid Goal ID
+          schema:
+            $ref: '#/definitions/handlers.ExcuseValidationErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ExcuseInternalErrorResponse'
       summary: List excuses for a goal
       tags:
       - excuses
@@ -416,6 +583,18 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/handlers.ExcuseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ExcuseValidationErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ExcuseForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ExcuseInternalErrorResponse'
       summary: Create or update an excuse
       tags:
       - excuses
@@ -436,6 +615,18 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/handlers.ExcuseResponse'
+        "400":
+          description: Invalid Goal ID
+          schema:
+            $ref: '#/definitions/handlers.ExcuseValidationErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ExcuseNotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ExcuseInternalErrorResponse'
       summary: Get today's excuse for a goal
       tags:
       - excuses
@@ -454,6 +645,14 @@ paths:
       responses:
         "204":
           description: No Content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.GoalNotFoundErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.GoalInternalErrorResponse'
       summary: Delete goal
       tags:
       - goals
@@ -479,6 +678,18 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/handlers.CreateGoalResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.GoalValidationErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.GoalNotFoundErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.GoalInternalErrorResponse'
       summary: Update goal
       tags:
       - goals
@@ -494,6 +705,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/handlers.GetMePlanResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.PlanInternalErrorResponse'
       summary: Get current user plan and entitlements
       tags:
       - plan
@@ -515,6 +730,14 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/handlers.PostMePlanResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.PlanValidationErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.PlanInternalErrorResponse'
       summary: Update user plan
       tags:
       - plan
