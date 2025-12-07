@@ -6,13 +6,12 @@ import (
 	"what-went-wrong-api/internal/services"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 type EntitlementManager interface {
-	GetPlan(userID uuid.UUID) (*models.UserPlan, error)
+	GetPlan(userID string) (*models.UserPlan, error)
 	GetEntitlements(planName string) services.Entitlements
-	UpdatePlan(userID uuid.UUID, planName string) (*models.UserPlan, error)
+	UpdatePlan(userID string, planName string) (*models.UserPlan, error)
 }
 
 type PlanHandler struct {
@@ -37,11 +36,7 @@ func (h *PlanHandler) GetMePlan(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
-	userID, err := uuid.Parse(userIDStr.(string))
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID"})
-		return
-	}
+	userID := userIDStr.(string)
 
 	plan, err := h.entitlementService.GetPlan(userID)
 	if err != nil {
@@ -72,11 +67,7 @@ func (h *PlanHandler) PostMePlan(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
-	userID, err := uuid.Parse(userIDStr.(string))
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID"})
-		return
-	}
+	userID := userIDStr.(string)
 
 	var req PostMePlanRequest
 	if err := c.BindJSON(&req); err != nil {

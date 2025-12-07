@@ -8,7 +8,6 @@ import (
 	"what-went-wrong-api/internal/services"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -34,11 +33,7 @@ func (h *GoalHandler) GetGoals(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
-	userID, err := uuid.Parse(userIDStr.(string))
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID"})
-		return
-	}
+	userID := userIDStr.(string)
 
 	var goals []models.Goal
 	if err := h.db.Where("user_id = ?", userID).Order("\"order\" asc, created_at desc").Find(&goals).Error; err != nil {
@@ -77,11 +72,7 @@ func (h *GoalHandler) PostGoals(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
-	userID, err := uuid.Parse(userIDStr.(string))
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID"})
-		return
-	}
+	userID := userIDStr.(string)
 
 	// Entitlement check
 	entitlementsInterface, exists := c.Get("entitlements")
@@ -149,7 +140,7 @@ func (h *GoalHandler) PostGoals(c *gin.Context) {
 func (h *GoalHandler) PatchGoal(c *gin.Context) {
 	goalID := c.Param("id")
 	userIDStr, _ := c.Get("userID")
-	userID, _ := uuid.Parse(userIDStr.(string))
+	userID := userIDStr.(string)
 
 	var goal models.Goal
 	if err := h.db.First(&goal, "id = ? AND user_id = ?", goalID, userID).Error; err != nil {
@@ -207,7 +198,7 @@ func (h *GoalHandler) PatchGoal(c *gin.Context) {
 func (h *GoalHandler) DeleteGoal(c *gin.Context) {
 	goalID := c.Param("id")
 	userIDStr, _ := c.Get("userID")
-	userID, _ := uuid.Parse(userIDStr.(string))
+	userID := userIDStr.(string)
 
 	// Transaction to delete associated excuses if necessary
 	// Assuming cascade delete is configured in DB or we handle it here

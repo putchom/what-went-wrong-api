@@ -5,7 +5,6 @@ import (
 	"time"
 	"what-went-wrong-api/internal/models"
 
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -17,7 +16,7 @@ func NewEntitlementService(db *gorm.DB) *EntitlementService {
 	return &EntitlementService{db: db}
 }
 
-func (s *EntitlementService) GetPlan(userID uuid.UUID) (*models.UserPlan, error) {
+func (s *EntitlementService) GetPlan(userID string) (*models.UserPlan, error) {
 	var plan models.UserPlan
 	if err := s.db.First(&plan, "user_id = ?", userID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -36,7 +35,7 @@ func (s *EntitlementService) GetPlan(userID uuid.UUID) (*models.UserPlan, error)
 	return &plan, nil
 }
 
-func (s *EntitlementService) UpdatePlan(userID uuid.UUID, planName string) (*models.UserPlan, error) {
+func (s *EntitlementService) UpdatePlan(userID string, planName string) (*models.UserPlan, error) {
 	if planName != "free" && planName != "premium" {
 		return nil, errors.New("invalid plan name")
 	}
@@ -86,7 +85,7 @@ func (s *EntitlementService) GetEntitlements(planName string) Entitlements {
 	}
 }
 
-func (s *EntitlementService) CanUseAiExcuse(userID uuid.UUID) (bool, error) {
+func (s *EntitlementService) CanUseAiExcuse(userID string) (bool, error) {
 	plan, err := s.GetPlan(userID)
 	if err != nil {
 		return false, err

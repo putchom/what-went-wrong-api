@@ -21,7 +21,7 @@ func TestGetExcuses_Retention(t *testing.T) {
 
 	handler := NewExcuseHandler(db)
 
-	userID := uuid.New()
+	userID := "auth0|test"
 	goalID := uuid.New()
 
 	// Seed Old Excuse (40 days ago)
@@ -36,7 +36,7 @@ func TestGetExcuses_Retention(t *testing.T) {
 		days := 30
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
-		c.Set("userID", userID.String())
+		c.Set("userID", userID)
 		c.Set("entitlements", services.Entitlements{LogRetentionDays: &days})
 		c.Params = gin.Params{{Key: "goal_id", Value: goalID.String()}}
 		c.Request, _ = http.NewRequest("GET", "/goals/"+goalID.String()+"/excuses", nil)
@@ -54,7 +54,7 @@ func TestGetExcuses_Retention(t *testing.T) {
 	t.Run("PremiumUser_SeeAll", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
-		c.Set("userID", userID.String())
+		c.Set("userID", userID)
 		c.Set("entitlements", services.Entitlements{LogRetentionDays: nil}) // Unlimited
 		c.Params = gin.Params{{Key: "goal_id", Value: goalID.String()}}
 		c.Request, _ = http.NewRequest("GET", "/goals/"+goalID.String()+"/excuses", nil)
@@ -74,14 +74,14 @@ func TestPostExcuse_Upsert(t *testing.T) {
 	defer cleanup()
 
 	handler := NewExcuseHandler(db)
-	userID := uuid.New()
+	userID := "auth0|test"
 	goalID := uuid.New()
 	today := time.Now().Format("2006-01-02")
 
 	// 1. Create New
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
-	c.Set("userID", userID.String())
+	c.Set("userID", userID)
 	c.Set("entitlements", services.Entitlements{})
 	c.Params = gin.Params{{Key: "goal_id", Value: goalID.String()}}
 
@@ -99,7 +99,7 @@ func TestPostExcuse_Upsert(t *testing.T) {
 	// 2. Update Existing
 	w = httptest.NewRecorder()
 	c, _ = gin.CreateTestContext(w)
-	c.Set("userID", userID.String())
+	c.Set("userID", userID)
 	c.Set("entitlements", services.Entitlements{})
 	c.Params = gin.Params{{Key: "goal_id", Value: goalID.String()}}
 
@@ -120,7 +120,7 @@ func TestPostExcuse_PremiumTemplate(t *testing.T) {
 	defer cleanup()
 
 	handler := NewExcuseHandler(db)
-	userID := uuid.New()
+	userID := "auth0|test"
 	goalID := uuid.New()
 
 	// Create Premium Template
@@ -132,7 +132,7 @@ func TestPostExcuse_PremiumTemplate(t *testing.T) {
 	// Free user try to use premium template
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
-	c.Set("userID", userID.String())
+	c.Set("userID", userID)
 	c.Set("entitlements", services.Entitlements{CanUsePremiumTemplates: false})
 	c.Params = gin.Params{{Key: "goal_id", Value: goalID.String()}}
 

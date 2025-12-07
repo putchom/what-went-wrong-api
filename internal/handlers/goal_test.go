@@ -11,7 +11,6 @@ import (
 	"what-went-wrong-api/internal/services"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -23,11 +22,11 @@ func TestPostGoals(t *testing.T) {
 		defer cleanup()
 		handler := NewGoalHandler(db)
 
-		userID := uuid.New()
+		userID := "auth0|test"
 
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
-		c.Set("userID", userID.String())
+		c.Set("userID", userID)
 		// Entitlement limit > 0
 		c.Set("entitlements", services.Entitlements{MaxGoals: 3})
 
@@ -51,7 +50,7 @@ func TestPostGoals(t *testing.T) {
 		defer cleanup()
 		handler := NewGoalHandler(db)
 
-		userID := uuid.New()
+		userID := "auth0|test"
 		// Pre-populate 3 goals
 		for i := 0; i < 3; i++ {
 			db.Create(&models.Goal{UserID: userID, Title: "Existing Goal"})
@@ -59,7 +58,7 @@ func TestPostGoals(t *testing.T) {
 
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
-		c.Set("userID", userID.String())
+		c.Set("userID", userID)
 		// Entitlement limit = 3
 		c.Set("entitlements", services.Entitlements{MaxGoals: 3})
 
@@ -83,13 +82,13 @@ func TestGetGoals(t *testing.T) {
 		defer cleanup()
 		handler := NewGoalHandler(db)
 
-		userID := uuid.New()
+		userID := "auth0|test"
 		db.Create(&models.Goal{UserID: userID, Title: "Goal 1", Order: 2, CreatedAt: time.Now().Add(-time.Hour)})
 		db.Create(&models.Goal{UserID: userID, Title: "Goal 2", Order: 1, CreatedAt: time.Now()})
 
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
-		c.Set("userID", userID.String())
+		c.Set("userID", userID)
 
 		c.Request, _ = http.NewRequest("GET", "/goals", nil)
 
@@ -113,7 +112,7 @@ func TestDeleteGoal(t *testing.T) {
 		defer cleanup()
 		handler := NewGoalHandler(db)
 
-		userID := uuid.New()
+		userID := "auth0|test"
 		goal := models.Goal{UserID: userID, Title: "To Delete"}
 		db.Create(&goal)
 
@@ -130,7 +129,7 @@ func TestDeleteGoal(t *testing.T) {
 		// Need to set userID in context. Since we use router, we need a middleware or hack?
 		// We can use a middleware to set userID for testing
 		r.Use(func(c *gin.Context) {
-			c.Set("userID", userID.String())
+			c.Set("userID", userID)
 			c.Next()
 		})
 
@@ -140,7 +139,7 @@ func TestDeleteGoal(t *testing.T) {
 
 		r2 := gin.New()
 		r2.Use(func(c *gin.Context) {
-			c.Set("userID", userID.String())
+			c.Set("userID", userID)
 			c.Next()
 		})
 		r2.DELETE("/goals/:id", handler.DeleteGoal)

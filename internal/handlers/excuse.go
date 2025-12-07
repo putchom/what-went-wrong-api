@@ -37,11 +37,7 @@ func (h *ExcuseHandler) GetExcuses(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
-	userID, err := uuid.Parse(userIdStr.(string))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid User ID"})
-		return
-	}
+	userID := userIdStr.(string)
 
 	goalIDStr := c.Param("goal_id")
 	goalID, err := uuid.Parse(goalIDStr)
@@ -112,11 +108,7 @@ func (h *ExcuseHandler) GetExcuseToday(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
-	userID, err := uuid.Parse(userIdStr.(string))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid User ID"})
-		return
-	}
+	userID := userIdStr.(string)
 
 	goalIDStr := c.Param("goal_id")
 	goalID, err := uuid.Parse(goalIDStr)
@@ -159,7 +151,7 @@ func (h *ExcuseHandler) GetExcuseToday(c *gin.Context) {
 // @Router /goals/{goal_id}/excuses [post]
 func (h *ExcuseHandler) PostExcuse(c *gin.Context) {
 	userIdStr, _ := c.Get("userID")
-	userID, _ := uuid.Parse(userIdStr.(string))
+	userID := userIdStr.(string)
 	goalIDStr := c.Param("goal_id")
 	goalID, err := uuid.Parse(goalIDStr)
 	if err != nil {
@@ -240,7 +232,7 @@ func (h *ExcuseHandler) PatchExcuse(c *gin.Context) {
 		return
 	}
 	userIdStr, _ := c.Get("userID")
-	userID, _ := uuid.Parse(userIdStr.(string))
+	userID := userIdStr.(string)
 
 	var req UpdateExcuseRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -295,7 +287,7 @@ func (h *ExcuseHandler) DeleteExcuse(c *gin.Context) {
 		return
 	}
 	userIdStr, _ := c.Get("userID")
-	userID, _ := uuid.Parse(userIdStr.(string))
+	userID := userIdStr.(string)
 
 	result := h.db.Where("id = ? AND user_id = ?", id, userID).Delete(&models.ExcuseEntry{})
 	if result.Error != nil {
