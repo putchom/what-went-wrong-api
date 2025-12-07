@@ -6,11 +6,10 @@ import (
 	"what-went-wrong-api/internal/services"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 type EntitlementManager interface {
-	GetPlan(userID uuid.UUID) (*models.UserPlan, error)
+	GetPlan(userID string) (*models.UserPlan, error)
 	GetEntitlements(planName string) services.Entitlements
 }
 
@@ -23,12 +22,7 @@ func NewEntitlementMiddleware(service EntitlementManager) gin.HandlerFunc {
 			return
 		}
 
-		userID, err := uuid.Parse(userIDStr.(string))
-		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID"})
-			c.Abort()
-			return
-		}
+		userID := userIDStr.(string)
 
 		plan, err := service.GetPlan(userID)
 		if err != nil {
