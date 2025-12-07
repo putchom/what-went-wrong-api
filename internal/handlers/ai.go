@@ -5,22 +5,15 @@ import (
 	"what-went-wrong-api/internal/services"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
-type EntitlementChecker interface {
-	CanUseAiExcuse(userID uuid.UUID) (bool, error)
-}
-
 type AIHandler struct {
-	entitlementService EntitlementChecker
-	aiService          services.AIService
+	aiService services.AIService
 }
 
-func NewAIHandler(entitlementService EntitlementChecker, aiService services.AIService) *AIHandler {
+func NewAIHandler(aiService services.AIService) *AIHandler {
 	return &AIHandler{
-		entitlementService: entitlementService,
-		aiService:          aiService,
+		aiService: aiService,
 	}
 }
 
@@ -48,23 +41,21 @@ type CreateAiExcuseResponse struct {
 // @Failure 500 {object} map[string]string
 // @Router /ai-excuse [post]
 func (h *AIHandler) PostAiExcuse(c *gin.Context) {
-	userIDStr, exists := c.Get("userID")
+	// UserID extraction kept if needed for future logic (e.g. logging), otherwise remove or underscore
+	_, exists := c.Get("userID")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
-	userID, err := uuid.Parse(userIDStr.(string))
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID"})
-		return
-	}
 
-	canUse, err := h.entitlementService.CanUseAiExcuse(userID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to check entitlement"})
+	entitlementsInterface, exists := c.Get("entitlements")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Entitlements not found in context"})
 		return
 	}
-	if !canUse {
+	entitlements := entitlementsInterface.(services.Entitlements)
+
+	if !entitlements.CanUseAiExcuse {
 		c.JSON(http.StatusForbidden, gin.H{"error": "This feature requires a premium plan"})
 		return
 	}

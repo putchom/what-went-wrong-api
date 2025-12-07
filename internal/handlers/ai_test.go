@@ -6,22 +6,13 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"what-went-wrong-api/internal/services"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
-
-// MockEntitlementChecker
-type MockEntitlementChecker struct {
-	mock.Mock
-}
-
-func (m *MockEntitlementChecker) CanUseAiExcuse(userID uuid.UUID) (bool, error) {
-	args := m.Called(userID)
-	return args.Bool(0), args.Error(1)
-}
 
 // MockAIService (re-defined here for simplicity or import if public)
 type TestMockAIService struct {
@@ -37,17 +28,17 @@ func TestPostAiExcuse(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	t.Run("Success", func(t *testing.T) {
-		mockEntitlement := new(MockEntitlementChecker)
 		mockAI := new(TestMockAIService)
-		handler := NewAIHandler(mockEntitlement, mockAI)
+		handler := NewAIHandler(mockAI)
 
 		userID := uuid.New()
-		mockEntitlement.On("CanUseAiExcuse", userID).Return(true, nil)
 		mockAI.On("GenerateExcuse", "surreal", "context").Return([]string{"excuse 1", "excuse 2"}, nil)
 
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 		c.Set("userID", userID.String())
+		// Simulate middleware setting entitlements
+		c.Set("entitlements", services.Entitlements{CanUseAiExcuse: true})
 
 		reqBody := CreateAiExcuseRequest{
 			GoalID:  "g1",
@@ -68,16 +59,16 @@ func TestPostAiExcuse(t *testing.T) {
 	})
 
 	t.Run("Forbidden_FreePlan", func(t *testing.T) {
-		mockEntitlement := new(MockEntitlementChecker)
 		mockAI := new(TestMockAIService)
-		handler := NewAIHandler(mockEntitlement, mockAI)
+		handler := NewAIHandler(mockAI)
 
 		userID := uuid.New()
-		mockEntitlement.On("CanUseAiExcuse", userID).Return(false, nil)
 
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 		c.Set("userID", userID.String())
+		// Simulate middleware setting restricted entitlements
+		c.Set("entitlements", services.Entitlements{CanUseAiExcuse: false})
 
 		reqBody := CreateAiExcuseRequest{
 			GoalID: "g1",
