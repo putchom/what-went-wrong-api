@@ -9,6 +9,7 @@ import (
 	"what-went-wrong-api/internal/middleware"
 	"what-went-wrong-api/internal/models"
 	"what-went-wrong-api/internal/seed"
+	"what-went-wrong-api/internal/services"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -72,6 +73,11 @@ func main() {
 		log.Fatalf("Failed to initialize auth middleware: %v", err)
 	}
 
+	// Serviceの初期化
+	entitlementService := services.NewEntitlementService(db)
+	aiService := services.NewMockAIService()
+	aiHandler := handlers.NewAIHandler(entitlementService, aiService)
+
 	// Ginエンジンのインスタンスを作成
 	r := gin.Default()
 
@@ -80,6 +86,7 @@ func main() {
 	v1.Use(authMiddleware)
 	{
 		v1.GET("/users", handlers.GetUsers(db))
+		v1.POST("/ai-excuse", aiHandler.PostAiExcuse)
 	}
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	r.Run(":8080")
