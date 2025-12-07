@@ -49,28 +49,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/handlers.ValidationErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden if not premium",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/handlers.PremiumRequiredResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/handlers.InternalErrorResponse"
                         }
                     }
                 }
@@ -507,16 +498,20 @@ const docTemplate = `{
             ],
             "properties": {
                 "context": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "I had a lot of meetings"
                 },
                 "date": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2023-10-27"
                 },
                 "goalId": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
                 },
                 "tone": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "serious"
                 }
             }
         },
@@ -527,7 +522,11 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "type": "string"
-                    }
+                    },
+                    "example": [
+                        "I had unexpected urgent work.",
+                        "I wasn't feeling well."
+                    ]
                 }
             }
         },
@@ -699,6 +698,15 @@ const docTemplate = `{
                 }
             }
         },
+        "handlers.InternalErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "Failed to generate excuses"
+                }
+            }
+        },
         "handlers.PostMePlanRequest": {
             "type": "object",
             "required": [
@@ -718,6 +726,15 @@ const docTemplate = `{
                 },
                 "plan": {
                     "type": "string"
+                }
+            }
+        },
+        "handlers.PremiumRequiredResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "This feature requires a premium plan"
                 }
             }
         },
@@ -745,6 +762,15 @@ const docTemplate = `{
                 "title": {
                     "type": "string",
                     "maxLength": 200
+                }
+            }
+        },
+        "handlers.ValidationErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "Key: 'CreateAiExcuseRequest.GoalID' Error:Field validation for 'GoalID' failed on the 'required' tag"
                 }
             }
         },

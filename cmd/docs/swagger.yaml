@@ -3,12 +3,16 @@ definitions:
   handlers.CreateAiExcuseRequest:
     properties:
       context:
+        example: I had a lot of meetings
         type: string
       date:
+        example: "2023-10-27"
         type: string
       goalId:
+        example: 550e8400-e29b-41d4-a716-446655440000
         type: string
       tone:
+        example: serious
         type: string
     required:
     - date
@@ -17,6 +21,9 @@ definitions:
   handlers.CreateAiExcuseResponse:
     properties:
       candidates:
+        example:
+        - I had unexpected urgent work.
+        - I wasn't feeling well.
         items:
           type: string
         type: array
@@ -131,6 +138,12 @@ definitions:
       updatedAt:
         type: string
     type: object
+  handlers.InternalErrorResponse:
+    properties:
+      error:
+        example: Failed to generate excuses
+        type: string
+    type: object
   handlers.PostMePlanRequest:
     properties:
       plan:
@@ -143,6 +156,12 @@ definitions:
       entitlements:
         $ref: '#/definitions/services.Entitlements'
       plan:
+        type: string
+    type: object
+  handlers.PremiumRequiredResponse:
+    properties:
+      error:
+        example: This feature requires a premium plan
         type: string
     type: object
   handlers.UpdateExcuseRequest:
@@ -161,6 +180,13 @@ definitions:
         type: string
       title:
         maxLength: 200
+        type: string
+    type: object
+  handlers.ValidationErrorResponse:
+    properties:
+      error:
+        example: 'Key: ''CreateAiExcuseRequest.GoalID'' Error:Field validation for
+          ''GoalID'' failed on the ''required'' tag'
         type: string
     type: object
   services.Entitlements:
@@ -203,21 +229,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/handlers.ValidationErrorResponse'
         "403":
           description: Forbidden if not premium
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/handlers.PremiumRequiredResponse'
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/handlers.InternalErrorResponse'
       summary: Generate AI excuses
       tags:
       - ai

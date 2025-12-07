@@ -17,17 +17,6 @@ func NewAIHandler(aiService services.AIService) *AIHandler {
 	}
 }
 
-type CreateAiExcuseRequest struct {
-	GoalID  string `json:"goalId" binding:"required"`
-	Date    string `json:"date" binding:"required"`
-	Tone    string `json:"tone"`
-	Context string `json:"context"`
-}
-
-type CreateAiExcuseResponse struct {
-	Candidates []string `json:"candidates"`
-}
-
 // PostAiExcuse godoc
 // @Summary Generate AI excuses
 // @Description Generate excuse candidates using AI. Requires premium plan.
@@ -36,9 +25,9 @@ type CreateAiExcuseResponse struct {
 // @Produce json
 // @Param request body CreateAiExcuseRequest true "Request body"
 // @Success 200 {object} CreateAiExcuseResponse
-// @Failure 400 {object} map[string]string
-// @Failure 403 {object} map[string]string "Forbidden if not premium"
-// @Failure 500 {object} map[string]string
+// @Failure 400 {object} ValidationErrorResponse
+// @Failure 403 {object} PremiumRequiredResponse "Forbidden if not premium"
+// @Failure 500 {object} InternalErrorResponse
 // @Router /ai-excuse [post]
 func (h *AIHandler) PostAiExcuse(c *gin.Context) {
 	// UserID extraction kept if needed for future logic (e.g. logging), otherwise remove or underscore
