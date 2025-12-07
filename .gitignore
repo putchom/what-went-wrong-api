@@ -1,0 +1,30 @@
+# Binaries
+main
+what-went-wrong-api
+/server
+*.exe
+*.test
+*.out
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Go
+vendor/
+go.work
+go.work.sum
+
+# Environment
+.env

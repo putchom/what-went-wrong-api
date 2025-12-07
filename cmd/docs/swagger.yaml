@@ -1,0 +1,58 @@
+basePath: /api/v1
+definitions:
+  handlers.ErrorResponse:
+    properties:
+      error:
+        example: missing or invalid Authorization header
+        type: string
+    type: object
+  models.User:
+    properties:
+      auth0ID:
+        type: string
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: API for what went wrong
+  title: What Went Wrong API
+  version: "1.0"
+paths:
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all users from database. Requires Bearer token authentication.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all users
+      tags:
+      - users
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
