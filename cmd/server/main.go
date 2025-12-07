@@ -79,6 +79,7 @@ func main() {
 	aiService := services.NewMockAIService()
 	aiHandler := handlers.NewAIHandler(aiService)
 	goalHandler := handlers.NewGoalHandler(db)
+	excuseHandler := handlers.NewExcuseHandler(db)
 	excuseTemplateHandler := handlers.NewExcuseTemplateHandler(db)
 
 	// Middleware の初期化
@@ -102,6 +103,12 @@ func main() {
 		v1.DELETE("/goals/:id", goalHandler.DeleteGoal)
 		v1.GET("/excuse-templates", excuseTemplateHandler.GetExcuseTemplates)
 		v1.GET("/excuse-templates/:id", excuseTemplateHandler.GetExcuseTemplate)
+
+		v1.GET("/goals/:goal_id/excuses", excuseHandler.GetExcuses)
+		v1.GET("/goals/:goal_id/excuses/today", excuseHandler.GetExcuseToday)
+		v1.POST("/goals/:goal_id/excuses", excuseHandler.PostExcuse)
+		v1.PATCH("/excuses/:id", excuseHandler.PatchExcuse)
+		v1.DELETE("/excuses/:id", excuseHandler.DeleteExcuse)
 	}
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	r.Run(":8080")
