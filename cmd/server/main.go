@@ -51,7 +51,13 @@ func main() {
 	}
 
 	// データベースにテーブルを作成
-	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(
+		&models.User{},
+		&models.Goal{},
+		&models.ExcuseEntry{},
+		&models.ExcuseTemplate{},
+		&models.UserPlan{},
+	)
 
 	// 開発環境でのみ初期データをシード
 	if os.Getenv("APP_ENV") != "production" {
