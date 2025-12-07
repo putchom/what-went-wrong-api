@@ -13,21 +13,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 )
-
-func setupTestDB() *gorm.DB {
-	db, _ := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
-	db.AutoMigrate(&models.Goal{}, &models.ExcuseEntry{})
-	return db
-}
 
 func TestPostGoals(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	t.Run("Success", func(t *testing.T) {
-		db := setupTestDB()
+		db, cleanup := SetupTestDB(t)
+		defer cleanup()
 		handler := NewGoalHandler(db)
 
 		userID := uuid.New()
@@ -54,7 +47,8 @@ func TestPostGoals(t *testing.T) {
 	})
 
 	t.Run("LimitReached", func(t *testing.T) {
-		db := setupTestDB()
+		db, cleanup := SetupTestDB(t)
+		defer cleanup()
 		handler := NewGoalHandler(db)
 
 		userID := uuid.New()
@@ -85,7 +79,8 @@ func TestGetGoals(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	t.Run("List", func(t *testing.T) {
-		db := setupTestDB()
+		db, cleanup := SetupTestDB(t)
+		defer cleanup()
 		handler := NewGoalHandler(db)
 
 		userID := uuid.New()
@@ -114,7 +109,8 @@ func TestDeleteGoal(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	t.Run("Success", func(t *testing.T) {
-		db := setupTestDB()
+		db, cleanup := SetupTestDB(t)
+		defer cleanup()
 		handler := NewGoalHandler(db)
 
 		userID := uuid.New()
@@ -122,17 +118,34 @@ func TestDeleteGoal(t *testing.T) {
 		db.Create(&goal)
 
 		// Create associated excuse
-		excuse := models.ExcuseEntry{UserID: userID, GoalID: goal.ID, ExcuseText: "test"}
-		db.Create(&excuse)
+		excuse := models.ExcuseEntry{UserID: userID, GoalID: goal.ID, ExcuseText: "test", Date: "2025-01-01"}
+		err := db.Create(&excuse).Error
+		assert.NoError(t, err)
 
 		w := httptest.NewRecorder()
-		c, _ := gin.CreateTestContext(w)
-		c.Set("userID", userID.String())
-		c.Params = []gin.Param{{Key: "id", Value: goal.ID.String()}}
+		_, r := gin.CreateTestContext(w)
+		r.DELETE("/goals/:id", handler.DeleteGoal)
 
-		c.Request, _ = http.NewRequest("DELETE", "/goals/"+goal.ID.String(), nil)
+		req, _ := http.NewRequest("DELETE", "/goals/"+goal.ID.String(), nil)
+		// Need to set userID in context. Since we use router, we need a middleware or hack?
+		// We can use a middleware to set userID for testing
+		r.Use(func(c *gin.Context) {
+			c.Set("userID", userID.String())
+			c.Next()
+		})
 
-		handler.DeleteGoal(c)
+		// ServeHTTP doesn't seem to make it easy to inject middleware AFTER defining route if route is already added?
+		// Actually gin adds middleware to group.
+		// Let's rebuild router structure clearly.
+
+		r2 := gin.New()
+		r2.Use(func(c *gin.Context) {
+			c.Set("userID", userID.String())
+			c.Next()
+		})
+		r2.DELETE("/goals/:id", handler.DeleteGoal)
+
+		r2.ServeHTTP(w, req)
 
 		assert.Equal(t, http.StatusNoContent, w.Code)
 
