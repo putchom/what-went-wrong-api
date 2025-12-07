@@ -75,6 +75,7 @@ func main() {
 
 	// Serviceの初期化
 	entitlementService := services.NewEntitlementService(db)
+	planHandler := handlers.NewPlanHandler(entitlementService)
 	aiService := services.NewMockAIService()
 	aiHandler := handlers.NewAIHandler(entitlementService, aiService)
 
@@ -86,6 +87,8 @@ func main() {
 	v1.Use(authMiddleware)
 	{
 		v1.GET("/users", handlers.GetUsers(db))
+		v1.GET("/me/plan", planHandler.GetMePlan)
+		v1.POST("/me/plan", planHandler.PostMePlan)
 		v1.POST("/ai-excuse", aiHandler.PostAiExcuse)
 	}
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
