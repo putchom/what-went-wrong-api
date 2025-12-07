@@ -5,8 +5,8 @@ import "time"
 type ExcuseTemplateResponse struct {
 	ID         string    `json:"id" example:"template_123"`
 	PackID     string    `json:"packId" example:"pack_abc"`
-	ExcuseText string    `json:"excuseText" example:"My dog ate my homework."`
-	Tags       []string  `json:"tags" example:"funny,classic"`
+	ExcuseText string    `json:"excuseText" example:"宿題を犬に食べられました。"`
+	Tags       []string  `json:"tags" example:"面白い,定番"`
 	IsPremium  bool      `json:"isPremium" example:"false"`
 	CreatedAt  time.Time `json:"createdAt"`
 }
@@ -16,9 +16,9 @@ type GetExcuseTemplatesResponse struct {
 }
 
 type TemplateInternalErrorResponse struct {
-	Error string `json:"error" example:"Failed to fetch templates"`
+	Error string `json:"error" example:"テンプレートの取得に失敗しました"`
 }
 
 type TemplateNotFoundResponse struct {
-	Error string `json:"error" example:"Template not found"`
+	Error string `json:"error" example:"テンプレートが見つかりません"`
 }

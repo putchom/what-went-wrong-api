@@ -33,7 +33,7 @@ func (h *ExcuseTemplateHandler) GetExcuseTemplates(c *gin.Context) {
 	// Entitlement check
 	entitlementsInterface, exists := c.Get("entitlements")
 	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Entitlements not found"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "プラン情報の取得に失敗しました"})
 		return
 	}
 	entitlements := entitlementsInterface.(services.Entitlements)
@@ -57,7 +57,7 @@ func (h *ExcuseTemplateHandler) GetExcuseTemplates(c *gin.Context) {
 
 	var templates []models.ExcuseTemplate
 	if err := query.Find(&templates).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch templates"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "テンプレートの取得に失敗しました"})
 		return
 	}
 
@@ -91,7 +91,7 @@ func (h *ExcuseTemplateHandler) GetExcuseTemplate(c *gin.Context) {
 
 	entitlementsInterface, exists := c.Get("entitlements")
 	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Entitlements not found"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "プラン情報の取得に失敗しました"})
 		return
 	}
 	entitlements := entitlementsInterface.(services.Entitlements)
@@ -99,15 +99,15 @@ func (h *ExcuseTemplateHandler) GetExcuseTemplate(c *gin.Context) {
 	var t models.ExcuseTemplate
 	if err := h.db.First(&t, "id = ?", id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Template not found"})
+			c.JSON(http.StatusNotFound, gin.H{"error": "テンプレートが見つかりません"})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch template"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "テンプレートの取得に失敗しました"})
 		return
 	}
 
 	if t.IsPremium && !entitlements.CanUsePremiumTemplates {
-		c.JSON(http.StatusForbidden, gin.H{"error": "This template requires a premium plan"})
+		c.JSON(http.StatusForbidden, gin.H{"error": "プレミアムテンプレートを利用するにはプレミアムプランが必要です"})
 		return
 	}
 

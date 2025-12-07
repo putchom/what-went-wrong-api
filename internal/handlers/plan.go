@@ -29,19 +29,19 @@ func NewPlanHandler(entitlementService EntitlementManager) *PlanHandler {
 // @Accept json
 // @Produce json
 // @Success 200 {object} GetMePlanResponse
-// @Failure 500 {object} PlanInternalErrorResponse
+// @Failure 500 {object} PlanFetchErrorResponse
 // @Router /me/plan [get]
 func (h *PlanHandler) GetMePlan(c *gin.Context) {
 	userIDStr, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "認証されていません"})
 		return
 	}
 	userID := userIDStr.(string)
 
 	plan, err := h.entitlementService.GetPlan(userID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get plan"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "プランの取得に失敗しました"})
 		return
 	}
 
@@ -62,7 +62,7 @@ func (h *PlanHandler) GetMePlan(c *gin.Context) {
 // @Param request body PostMePlanRequest true "Request body"
 // @Success 200 {object} PostMePlanResponse
 // @Failure 400 {object} PlanValidationErrorResponse
-// @Failure 500 {object} PlanInternalErrorResponse
+// @Failure 500 {object} PlanUpdateErrorResponse
 // @Router /me/plan [post]
 func (h *PlanHandler) PostMePlan(c *gin.Context) {
 	userIDStr, exists := c.Get("userID")
@@ -74,13 +74,13 @@ func (h *PlanHandler) PostMePlan(c *gin.Context) {
 
 	var req PostMePlanRequest
 	if err := c.BindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "入力内容が正しくありません"})
 		return
 	}
 
 	updatedPlan, err := h.entitlementService.UpdatePlan(userID, req.Plan)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update plan"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "プランの更新に失敗しました"})
 		return
 	}
 

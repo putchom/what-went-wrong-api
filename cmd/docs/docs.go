@@ -175,7 +175,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ExcuseInternalErrorResponse"
+                            "$ref": "#/definitions/handlers.ExcuseDeleteErrorResponse"
                         }
                     }
                 }
@@ -237,7 +237,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ExcuseInternalErrorResponse"
+                            "$ref": "#/definitions/handlers.ExcuseUpdateErrorResponse"
                         }
                     }
                 }
@@ -266,13 +266,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.GoalInternalErrorResponse"
+                            "$ref": "#/definitions/handlers.GoalFetchErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.GoalInternalErrorResponse"
+                            "$ref": "#/definitions/handlers.GoalFetchErrorResponse"
                         }
                     }
                 }
@@ -322,7 +322,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.GoalInternalErrorResponse"
+                            "$ref": "#/definitions/handlers.GoalCreateErrorResponse"
                         }
                     }
                 }
@@ -378,7 +378,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ExcuseInternalErrorResponse"
+                            "$ref": "#/definitions/handlers.ExcuseFetchErrorResponse"
                         }
                     }
                 }
@@ -435,7 +435,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ExcuseInternalErrorResponse"
+                            "$ref": "#/definitions/handlers.ExcuseCreateErrorResponse"
                         }
                     }
                 }
@@ -484,7 +484,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ExcuseInternalErrorResponse"
+                            "$ref": "#/definitions/handlers.ExcuseFetchErrorResponse"
                         }
                     }
                 }
@@ -524,7 +524,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.GoalInternalErrorResponse"
+                            "$ref": "#/definitions/handlers.GoalDeleteErrorResponse"
                         }
                     }
                 }
@@ -580,7 +580,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.GoalInternalErrorResponse"
+                            "$ref": "#/definitions/handlers.GoalUpdateErrorResponse"
                         }
                     }
                 }
@@ -609,7 +609,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.PlanInternalErrorResponse"
+                            "$ref": "#/definitions/handlers.PlanFetchErrorResponse"
                         }
                     }
                 }
@@ -653,7 +653,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/handlers.PlanInternalErrorResponse"
+                            "$ref": "#/definitions/handlers.PlanUpdateErrorResponse"
                         }
                     }
                 }
@@ -670,7 +670,7 @@ const docTemplate = `{
             "properties": {
                 "context": {
                     "type": "string",
-                    "example": "I had a lot of meetings"
+                    "example": "会議が多すぎました。"
                 },
                 "date": {
                     "type": "string",
@@ -682,7 +682,7 @@ const docTemplate = `{
                 },
                 "tone": {
                     "type": "string",
-                    "example": "serious"
+                    "example": "真面目"
                 }
             }
         },
@@ -695,8 +695,8 @@ const docTemplate = `{
                         "type": "string"
                     },
                     "example": [
-                        "I had unexpected urgent work.",
-                        "I wasn't feeling well."
+                        "急な緊急対応が入りました。",
+                        "体調が優れませんでした。"
                     ]
                 }
             }
@@ -716,7 +716,7 @@ const docTemplate = `{
                 "excuseText": {
                     "type": "string",
                     "maxLength": 500,
-                    "example": "I overslept."
+                    "example": "寝坊しました。"
                 },
                 "templateId": {
                     "type": "string",
@@ -741,7 +741,7 @@ const docTemplate = `{
                 "title": {
                     "type": "string",
                     "maxLength": 200,
-                    "example": "Read 10 pages"
+                    "example": "本を10ページ読む"
                 }
             }
         },
@@ -753,21 +753,39 @@ const docTemplate = `{
                 }
             }
         },
+        "handlers.ExcuseCreateErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "言い訳の作成に失敗しました"
+                }
+            }
+        },
+        "handlers.ExcuseDeleteErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "言い訳の削除に失敗しました"
+                }
+            }
+        },
+        "handlers.ExcuseFetchErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "言い訳の取得に失敗しました"
+                }
+            }
+        },
         "handlers.ExcuseForbiddenResponse": {
             "type": "object",
             "properties": {
                 "error": {
                     "type": "string",
-                    "example": "Premium template entitlement required"
-                }
-            }
-        },
-        "handlers.ExcuseInternalErrorResponse": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "type": "string",
-                    "example": "Failed to create excuse"
+                    "example": "プレミアムテンプレートを利用するにはプレミアムプランが必要です"
                 }
             }
         },
@@ -776,7 +794,7 @@ const docTemplate = `{
             "properties": {
                 "error": {
                     "type": "string",
-                    "example": "Excuse not found"
+                    "example": "言い訳が見つかりません"
                 }
             }
         },
@@ -792,7 +810,7 @@ const docTemplate = `{
                 },
                 "excuseText": {
                     "type": "string",
-                    "example": "I overslept."
+                    "example": "寝坊しました。"
                 },
                 "goalId": {
                     "type": "string",
@@ -819,7 +837,7 @@ const docTemplate = `{
                 },
                 "excuseText": {
                     "type": "string",
-                    "example": "My dog ate my homework."
+                    "example": "宿題を犬に食べられました。"
                 },
                 "id": {
                     "type": "string",
@@ -839,9 +857,18 @@ const docTemplate = `{
                         "type": "string"
                     },
                     "example": [
-                        "funny",
-                        "classic"
+                        "面白い",
+                        "定番"
                     ]
+                }
+            }
+        },
+        "handlers.ExcuseUpdateErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "言い訳の更新に失敗しました"
                 }
             }
         },
@@ -850,7 +877,7 @@ const docTemplate = `{
             "properties": {
                 "error": {
                     "type": "string",
-                    "example": "Key: 'CreateExcuseRequest.Date' Error:Field validation for 'Date' failed on the 'required' tag"
+                    "example": "入力内容が正しくありません"
                 }
             }
         },
@@ -904,12 +931,30 @@ const docTemplate = `{
                 }
             }
         },
-        "handlers.GoalInternalErrorResponse": {
+        "handlers.GoalCreateErrorResponse": {
             "type": "object",
             "properties": {
                 "error": {
                     "type": "string",
-                    "example": "Failed to fetch goals"
+                    "example": "目標の作成に失敗しました"
+                }
+            }
+        },
+        "handlers.GoalDeleteErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "目標の削除に失敗しました"
+                }
+            }
+        },
+        "handlers.GoalFetchErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "目標の取得に失敗しました"
                 }
             }
         },
@@ -918,7 +963,7 @@ const docTemplate = `{
             "properties": {
                 "error": {
                     "type": "string",
-                    "example": "Maximum goal limit reached for your plan"
+                    "example": "プランの目標作成数上限に達しました"
                 }
             }
         },
@@ -927,7 +972,7 @@ const docTemplate = `{
             "properties": {
                 "error": {
                     "type": "string",
-                    "example": "Goal not found"
+                    "example": "目標が見つかりません"
                 }
             }
         },
@@ -955,10 +1000,19 @@ const docTemplate = `{
                 },
                 "title": {
                     "type": "string",
-                    "example": "Read 10 pages"
+                    "example": "本を10ページ読む"
                 },
                 "updatedAt": {
                     "type": "string"
+                }
+            }
+        },
+        "handlers.GoalUpdateErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "目標の更新に失敗しました"
                 }
             }
         },
@@ -967,7 +1021,7 @@ const docTemplate = `{
             "properties": {
                 "error": {
                     "type": "string",
-                    "example": "Key: 'CreateGoalRequest.Title' Error:Field validation for 'Title' failed on the 'required' tag"
+                    "example": "入力内容が正しくありません"
                 }
             }
         },
@@ -976,16 +1030,25 @@ const docTemplate = `{
             "properties": {
                 "error": {
                     "type": "string",
-                    "example": "Failed to generate excuses"
+                    "example": "AI言い訳の生成に失敗しました"
                 }
             }
         },
-        "handlers.PlanInternalErrorResponse": {
+        "handlers.PlanFetchErrorResponse": {
             "type": "object",
             "properties": {
                 "error": {
                     "type": "string",
-                    "example": "Failed to get plan"
+                    "example": "プランの取得に失敗しました"
+                }
+            }
+        },
+        "handlers.PlanUpdateErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "プランの更新に失敗しました"
                 }
             }
         },
@@ -994,7 +1057,7 @@ const docTemplate = `{
             "properties": {
                 "error": {
                     "type": "string",
-                    "example": "Key: 'PostMePlanRequest.Plan' Error:Field validation for 'Plan' failed on the 'required' tag"
+                    "example": "入力内容が正しくありません"
                 }
             }
         },
@@ -1027,7 +1090,7 @@ const docTemplate = `{
             "properties": {
                 "error": {
                     "type": "string",
-                    "example": "This feature requires a premium plan"
+                    "example": "この機能を利用するにはプレミアムプランが必要です"
                 }
             }
         },
@@ -1036,7 +1099,7 @@ const docTemplate = `{
             "properties": {
                 "error": {
                     "type": "string",
-                    "example": "Failed to fetch templates"
+                    "example": "テンプレートの取得に失敗しました"
                 }
             }
         },
@@ -1045,7 +1108,7 @@ const docTemplate = `{
             "properties": {
                 "error": {
                     "type": "string",
-                    "example": "Template not found"
+                    "example": "テンプレートが見つかりません"
                 }
             }
         },
@@ -1055,7 +1118,7 @@ const docTemplate = `{
                 "excuseText": {
                     "type": "string",
                     "maxLength": 500,
-                    "example": "I overslept a lot."
+                    "example": "盛大に寝坊しました。"
                 },
                 "templateId": {
                     "type": "string",
@@ -1077,7 +1140,7 @@ const docTemplate = `{
                 "title": {
                     "type": "string",
                     "maxLength": 200,
-                    "example": "Read 20 pages"
+                    "example": "本を20ページ読む"
                 }
             }
         },
@@ -1086,7 +1149,7 @@ const docTemplate = `{
             "properties": {
                 "error": {
                     "type": "string",
-                    "example": "Key: 'CreateAiExcuseRequest.GoalID' Error:Field validation for 'GoalID' failed on the 'required' tag"
+                    "example": "入力内容が正しくありません"
                 }
             }
         },

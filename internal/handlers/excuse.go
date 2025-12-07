@@ -31,12 +31,12 @@ func NewExcuseHandler(db *gorm.DB) *ExcuseHandler {
 // @Param to query string false "To Date (YYYY-MM-DD)"
 // @Success 200 {object} GetExcusesResponse
 // @Failure 400 {object} ExcuseValidationErrorResponse "Invalid Goal ID"
-// @Failure 500 {object} ExcuseInternalErrorResponse
+// @Failure 500 {object} ExcuseFetchErrorResponse
 // @Router /goals/{goal_id}/excuses [get]
 func (h *ExcuseHandler) GetExcuses(c *gin.Context) {
 	userIdStr, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "認証されていません"})
 		return
 	}
 	userID := userIdStr.(string)
@@ -44,13 +44,13 @@ func (h *ExcuseHandler) GetExcuses(c *gin.Context) {
 	goalIDStr := c.Param("goal_id")
 	goalID, err := uuid.Parse(goalIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Goal ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "入力内容が正しくありません"})
 		return
 	}
 
 	entitlementsInterface, exists := c.Get("entitlements")
 	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Entitlements not found"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "プラン情報の取得に失敗しました"})
 		return
 	}
 	entitlements := entitlementsInterface.(services.Entitlements)
@@ -76,7 +76,7 @@ func (h *ExcuseHandler) GetExcuses(c *gin.Context) {
 
 	var excuses []models.ExcuseEntry
 	if err := query.Order("date desc").Find(&excuses).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch excuses"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "言い訳の取得に失敗しました"})
 		return
 	}
 
@@ -105,12 +105,12 @@ func (h *ExcuseHandler) GetExcuses(c *gin.Context) {
 // @Success 200 {object} ExcuseResponse
 // @Failure 400 {object} ExcuseValidationErrorResponse "Invalid Goal ID"
 // @Failure 404 {object} ExcuseNotFoundResponse
-// @Failure 500 {object} ExcuseInternalErrorResponse
+// @Failure 500 {object} ExcuseFetchErrorResponse
 // @Router /goals/{goal_id}/excuses/today [get]
 func (h *ExcuseHandler) GetExcuseToday(c *gin.Context) {
 	userIdStr, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "認証されていません"})
 		return
 	}
 	userID := userIdStr.(string)
@@ -118,7 +118,7 @@ func (h *ExcuseHandler) GetExcuseToday(c *gin.Context) {
 	goalIDStr := c.Param("goal_id")
 	goalID, err := uuid.Parse(goalIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Goal ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "入力内容が正しくありません"})
 		return
 	}
 
@@ -126,10 +126,10 @@ func (h *ExcuseHandler) GetExcuseToday(c *gin.Context) {
 	var excuse models.ExcuseEntry
 	if err := h.db.Where("user_id = ? AND goal_id = ? AND date = ?", userID, goalID, today).First(&excuse).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Excuse not found for today"})
+			c.JSON(http.StatusNotFound, gin.H{"error": "本日の言い訳が見つかりません"})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch excuse"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "言い訳の取得に失敗しました"})
 		return
 	}
 
@@ -155,7 +155,7 @@ func (h *ExcuseHandler) GetExcuseToday(c *gin.Context) {
 // @Success 201 {object} ExcuseResponse
 // @Failure 400 {object} ExcuseValidationErrorResponse
 // @Failure 403 {object} ExcuseForbiddenResponse
-// @Failure 500 {object} ExcuseInternalErrorResponse
+// @Failure 500 {object} ExcuseCreateErrorResponse
 // @Router /goals/{goal_id}/excuses [post]
 func (h *ExcuseHandler) PostExcuse(c *gin.Context) {
 	userIdStr, _ := c.Get("userID")
@@ -163,13 +163,13 @@ func (h *ExcuseHandler) PostExcuse(c *gin.Context) {
 	goalIDStr := c.Param("goal_id")
 	goalID, err := uuid.Parse(goalIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Goal ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "入力内容が正しくありません"})
 		return
 	}
 
 	var req CreateExcuseRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "入力内容が正しくありません"})
 		return
 	}
 
@@ -180,11 +180,11 @@ func (h *ExcuseHandler) PostExcuse(c *gin.Context) {
 	if req.TemplateID != "" {
 		var tmpl models.ExcuseTemplate
 		if err := h.db.First(&tmpl, "id = ?", req.TemplateID).Error; err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid template ID"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "入力内容が正しくありません"})
 			return
 		}
 		if tmpl.IsPremium && !entitlements.CanUsePremiumTemplates {
-			c.JSON(http.StatusForbidden, gin.H{"error": "This template requires a premium plan"})
+			c.JSON(http.StatusForbidden, gin.H{"error": "プレミアムテンプレートを利用するにはプレミアムプランが必要です"})
 			return
 		}
 	}
@@ -214,12 +214,12 @@ func (h *ExcuseHandler) PostExcuse(c *gin.Context) {
 			excuse.TemplateID = &req.TemplateID
 		}
 		if err := h.db.Create(&excuse).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create excuse"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "言い訳の作成に失敗しました"})
 			return
 		}
 		c.JSON(http.StatusCreated, mapToResponse(excuse))
 	} else {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "言い訳の作成に失敗しました"})
 	}
 }
 
@@ -234,13 +234,13 @@ func (h *ExcuseHandler) PostExcuse(c *gin.Context) {
 // @Failure 400 {object} ExcuseValidationErrorResponse
 // @Failure 403 {object} ExcuseForbiddenResponse
 // @Failure 404 {object} ExcuseNotFoundResponse
-// @Failure 500 {object} ExcuseInternalErrorResponse
+// @Failure 500 {object} ExcuseUpdateErrorResponse
 // @Router /excuses/{id} [patch]
 func (h *ExcuseHandler) PatchExcuse(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Excuse ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "入力内容が正しくありません"})
 		return
 	}
 	userIdStr, _ := c.Get("userID")
@@ -248,13 +248,13 @@ func (h *ExcuseHandler) PatchExcuse(c *gin.Context) {
 
 	var req UpdateExcuseRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "入力内容が正しくありません"})
 		return
 	}
 
 	var excuse models.ExcuseEntry
 	if err := h.db.Where("id = ? AND user_id = ?", id, userID).First(&excuse).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Excuse not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "言い訳が見つかりません"})
 		return
 	}
 
@@ -271,17 +271,20 @@ func (h *ExcuseHandler) PatchExcuse(c *gin.Context) {
 	if req.TemplateID != "" {
 		var tmpl models.ExcuseTemplate
 		if err := h.db.First(&tmpl, "id = ?", req.TemplateID).Error; err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid template ID"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "入力内容が正しくありません"})
 			return
 		}
 		if tmpl.IsPremium && !entitlements.CanUsePremiumTemplates {
-			c.JSON(http.StatusForbidden, gin.H{"error": "This template requires a premium plan"})
+			c.JSON(http.StatusForbidden, gin.H{"error": "プレミアムテンプレートを利用するにはプレミアムプランが必要です"})
 			return
 		}
 		excuse.TemplateID = &req.TemplateID
 	}
 
-	h.db.Save(&excuse)
+	if err := h.db.Save(&excuse).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "言い訳の更新に失敗しました"})
+		return
+	}
 	c.JSON(http.StatusOK, mapToResponse(excuse))
 }
 
@@ -292,13 +295,13 @@ func (h *ExcuseHandler) PatchExcuse(c *gin.Context) {
 // @Success 204 "No Content"
 // @Failure 400 {object} ExcuseValidationErrorResponse "Invalid Excuse ID"
 // @Failure 404 {object} ExcuseNotFoundResponse
-// @Failure 500 {object} ExcuseInternalErrorResponse
+// @Failure 500 {object} ExcuseDeleteErrorResponse
 // @Router /excuses/{id} [delete]
 func (h *ExcuseHandler) DeleteExcuse(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid Excuse ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "入力内容が正しくありません"})
 		return
 	}
 	userIdStr, _ := c.Get("userID")
@@ -306,11 +309,11 @@ func (h *ExcuseHandler) DeleteExcuse(c *gin.Context) {
 
 	result := h.db.Where("id = ? AND user_id = ?", id, userID).Delete(&models.ExcuseEntry{})
 	if result.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete excuse"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "言い訳の削除に失敗しました"})
 		return
 	}
 	if result.RowsAffected == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Excuse not found"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "言い訳が見つかりません"})
 		return
 	}
 

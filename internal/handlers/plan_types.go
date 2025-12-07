@@ -16,10 +16,14 @@ type PostMePlanResponse struct {
 	Entitlements services.Entitlements `json:"entitlements"`
 }
 
-type PlanInternalErrorResponse struct {
-	Error string `json:"error" example:"Failed to get plan"`
+type PlanFetchErrorResponse struct {
+	Error string `json:"error" example:"プランの取得に失敗しました"`
+}
+
+type PlanUpdateErrorResponse struct {
+	Error string `json:"error" example:"プランの更新に失敗しました"`
 }
 
 type PlanValidationErrorResponse struct {
-	Error string `json:"error" example:"Key: 'PostMePlanRequest.Plan' Error:Field validation for 'Plan' failed on the 'required' tag"`
+	Error string `json:"error" example:"入力内容が正しくありません"`
 }

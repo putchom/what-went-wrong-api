@@ -3,7 +3,7 @@ definitions:
   handlers.CreateAiExcuseRequest:
     properties:
       context:
-        example: I had a lot of meetings
+        example: 会議が多すぎました。
         type: string
       date:
         example: "2023-10-27"
@@ -12,7 +12,7 @@ definitions:
         example: 550e8400-e29b-41d4-a716-446655440000
         type: string
       tone:
-        example: serious
+        example: 真面目
         type: string
     required:
     - date
@@ -22,8 +22,8 @@ definitions:
     properties:
       candidates:
         example:
-        - I had unexpected urgent work.
-        - I wasn't feeling well.
+        - 急な緊急対応が入りました。
+        - 体調が優れませんでした。
         items:
           type: string
         type: array
@@ -35,7 +35,7 @@ definitions:
         example: "2023-10-27"
         type: string
       excuseText:
-        example: I overslept.
+        example: 寝坊しました。
         maxLength: 500
         type: string
       templateId:
@@ -54,7 +54,7 @@ definitions:
         example: "20:00"
         type: string
       title:
-        example: Read 10 pages
+        example: 本を10ページ読む
         maxLength: 200
         type: string
     required:
@@ -65,22 +65,34 @@ definitions:
       goal:
         $ref: '#/definitions/handlers.GoalResponse'
     type: object
+  handlers.ExcuseCreateErrorResponse:
+    properties:
+      error:
+        example: 言い訳の作成に失敗しました
+        type: string
+    type: object
+  handlers.ExcuseDeleteErrorResponse:
+    properties:
+      error:
+        example: 言い訳の削除に失敗しました
+        type: string
+    type: object
+  handlers.ExcuseFetchErrorResponse:
+    properties:
+      error:
+        example: 言い訳の取得に失敗しました
+        type: string
+    type: object
   handlers.ExcuseForbiddenResponse:
     properties:
       error:
-        example: Premium template entitlement required
-        type: string
-    type: object
-  handlers.ExcuseInternalErrorResponse:
-    properties:
-      error:
-        example: Failed to create excuse
+        example: プレミアムテンプレートを利用するにはプレミアムプランが必要です
         type: string
     type: object
   handlers.ExcuseNotFoundResponse:
     properties:
       error:
-        example: Excuse not found
+        example: 言い訳が見つかりません
         type: string
     type: object
   handlers.ExcuseResponse:
@@ -91,7 +103,7 @@ definitions:
         example: "2023-10-27"
         type: string
       excuseText:
-        example: I overslept.
+        example: 寝坊しました。
         type: string
       goalId:
         example: 550e8400-e29b-41d4-a716-446655440001
@@ -110,7 +122,7 @@ definitions:
       createdAt:
         type: string
       excuseText:
-        example: My dog ate my homework.
+        example: 宿題を犬に食べられました。
         type: string
       id:
         example: template_123
@@ -123,17 +135,22 @@ definitions:
         type: string
       tags:
         example:
-        - funny
-        - classic
+        - 面白い
+        - 定番
         items:
           type: string
         type: array
     type: object
+  handlers.ExcuseUpdateErrorResponse:
+    properties:
+      error:
+        example: 言い訳の更新に失敗しました
+        type: string
+    type: object
   handlers.ExcuseValidationErrorResponse:
     properties:
       error:
-        example: 'Key: ''CreateExcuseRequest.Date'' Error:Field validation for ''Date''
-          failed on the ''required'' tag'
+        example: 入力内容が正しくありません
         type: string
     type: object
   handlers.GetExcuseTemplatesResponse:
@@ -168,22 +185,34 @@ definitions:
         example: premium
         type: string
     type: object
-  handlers.GoalInternalErrorResponse:
+  handlers.GoalCreateErrorResponse:
     properties:
       error:
-        example: Failed to fetch goals
+        example: 目標の作成に失敗しました
+        type: string
+    type: object
+  handlers.GoalDeleteErrorResponse:
+    properties:
+      error:
+        example: 目標の削除に失敗しました
+        type: string
+    type: object
+  handlers.GoalFetchErrorResponse:
+    properties:
+      error:
+        example: 目標の取得に失敗しました
         type: string
     type: object
   handlers.GoalLimitReachedResponse:
     properties:
       error:
-        example: Maximum goal limit reached for your plan
+        example: プランの目標作成数上限に達しました
         type: string
     type: object
   handlers.GoalNotFoundErrorResponse:
     properties:
       error:
-        example: Goal not found
+        example: 目標が見つかりません
         type: string
     type: object
   handlers.GoalResponse:
@@ -203,35 +232,45 @@ definitions:
         example: 1
         type: integer
       title:
-        example: Read 10 pages
+        example: 本を10ページ読む
         type: string
       updatedAt:
+        type: string
+    type: object
+  handlers.GoalUpdateErrorResponse:
+    properties:
+      error:
+        example: 目標の更新に失敗しました
         type: string
     type: object
   handlers.GoalValidationErrorResponse:
     properties:
       error:
-        example: 'Key: ''CreateGoalRequest.Title'' Error:Field validation for ''Title''
-          failed on the ''required'' tag'
+        example: 入力内容が正しくありません
         type: string
     type: object
   handlers.InternalErrorResponse:
     properties:
       error:
-        example: Failed to generate excuses
+        example: AI言い訳の生成に失敗しました
         type: string
     type: object
-  handlers.PlanInternalErrorResponse:
+  handlers.PlanFetchErrorResponse:
     properties:
       error:
-        example: Failed to get plan
+        example: プランの取得に失敗しました
+        type: string
+    type: object
+  handlers.PlanUpdateErrorResponse:
+    properties:
+      error:
+        example: プランの更新に失敗しました
         type: string
     type: object
   handlers.PlanValidationErrorResponse:
     properties:
       error:
-        example: 'Key: ''PostMePlanRequest.Plan'' Error:Field validation for ''Plan''
-          failed on the ''required'' tag'
+        example: 入力内容が正しくありません
         type: string
     type: object
   handlers.PostMePlanRequest:
@@ -253,25 +292,25 @@ definitions:
   handlers.PremiumRequiredResponse:
     properties:
       error:
-        example: This feature requires a premium plan
+        example: この機能を利用するにはプレミアムプランが必要です
         type: string
     type: object
   handlers.TemplateInternalErrorResponse:
     properties:
       error:
-        example: Failed to fetch templates
+        example: テンプレートの取得に失敗しました
         type: string
     type: object
   handlers.TemplateNotFoundResponse:
     properties:
       error:
-        example: Template not found
+        example: テンプレートが見つかりません
         type: string
     type: object
   handlers.UpdateExcuseRequest:
     properties:
       excuseText:
-        example: I overslept a lot.
+        example: 盛大に寝坊しました。
         maxLength: 500
         type: string
       templateId:
@@ -287,15 +326,14 @@ definitions:
         example: "21:00"
         type: string
       title:
-        example: Read 20 pages
+        example: 本を20ページ読む
         maxLength: 200
         type: string
     type: object
   handlers.ValidationErrorResponse:
     properties:
       error:
-        example: 'Key: ''CreateAiExcuseRequest.GoalID'' Error:Field validation for
-          ''GoalID'' failed on the ''required'' tag'
+        example: 入力内容が正しくありません
         type: string
     type: object
   services.Entitlements:
@@ -421,7 +459,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.ExcuseInternalErrorResponse'
+            $ref: '#/definitions/handlers.ExcuseDeleteErrorResponse'
       summary: Delete an excuse
       tags:
       - excuses
@@ -462,7 +500,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.ExcuseInternalErrorResponse'
+            $ref: '#/definitions/handlers.ExcuseUpdateErrorResponse'
       summary: Update an excuse
       tags:
       - excuses
@@ -481,11 +519,11 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.GoalInternalErrorResponse'
+            $ref: '#/definitions/handlers.GoalFetchErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.GoalInternalErrorResponse'
+            $ref: '#/definitions/handlers.GoalFetchErrorResponse'
       summary: List goals
       tags:
       - goals
@@ -518,7 +556,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.GoalInternalErrorResponse'
+            $ref: '#/definitions/handlers.GoalCreateErrorResponse'
       summary: Create goal
       tags:
       - goals
@@ -556,7 +594,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.ExcuseInternalErrorResponse'
+            $ref: '#/definitions/handlers.ExcuseFetchErrorResponse'
       summary: List excuses for a goal
       tags:
       - excuses
@@ -594,7 +632,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.ExcuseInternalErrorResponse'
+            $ref: '#/definitions/handlers.ExcuseCreateErrorResponse'
       summary: Create or update an excuse
       tags:
       - excuses
@@ -626,7 +664,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.ExcuseInternalErrorResponse'
+            $ref: '#/definitions/handlers.ExcuseFetchErrorResponse'
       summary: Get today's excuse for a goal
       tags:
       - excuses
@@ -652,7 +690,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.GoalInternalErrorResponse'
+            $ref: '#/definitions/handlers.GoalDeleteErrorResponse'
       summary: Delete goal
       tags:
       - goals
@@ -689,7 +727,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.GoalInternalErrorResponse'
+            $ref: '#/definitions/handlers.GoalUpdateErrorResponse'
       summary: Update goal
       tags:
       - goals
@@ -708,7 +746,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.PlanInternalErrorResponse'
+            $ref: '#/definitions/handlers.PlanFetchErrorResponse'
       summary: Get current user plan and entitlements
       tags:
       - plan
@@ -737,7 +775,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/handlers.PlanInternalErrorResponse'
+            $ref: '#/definitions/handlers.PlanUpdateErrorResponse'
       summary: Update user plan
       tags:
       - plan
