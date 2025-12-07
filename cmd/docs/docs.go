@@ -15,14 +15,9 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/users": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Get a list of all users from database. Requires Bearer token authentication.",
+        "/ai-excuse": {
+            "post": {
+                "description": "Generate excuse candidates using AI. Requires premium plan.",
                 "consumes": [
                     "application/json"
                 ],
@@ -30,23 +25,707 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "ai"
                 ],
-                "summary": "Get all users",
+                "summary": "Generate AI excuses",
+                "parameters": [
+                    {
+                        "description": "Request body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.CreateAiExcuseRequest"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.User"
-                            }
+                            "$ref": "#/definitions/handlers.CreateAiExcuseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ValidationErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "$ref": "#/definitions/handlers.AiUnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden if not premium",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.PremiumRequiredResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.InternalErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/excuse-templates": {
+            "get": {
+                "description": "Get excuse templates. Can filter by pack_id. Premium users can access all. Free users restricted from premium packs.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "excuse-templates"
+                ],
+                "summary": "List excuse templates",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Pack ID to filter",
+                        "name": "pack_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GetExcuseTemplatesResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/excuse-templates/{id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "excuse-templates"
+                ],
+                "summary": "Get template details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Template ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseTemplateResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.TemplateUnauthorizedResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.TemplateNotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.TemplateInternalErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/excuses/{id}": {
+            "delete": {
+                "tags": [
+                    "excuses"
+                ],
+                "summary": "Delete an excuse",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Excuse ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Invalid Excuse ID",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseUnauthorizedResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseNotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseDeleteErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "excuses"
+                ],
+                "summary": "Update an excuse",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Excuse ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.UpdateExcuseRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseUnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseForbiddenResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseNotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseUpdateErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/goals": {
+            "get": {
+                "description": "Get all goals for the current user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "goals"
+                ],
+                "summary": "List goals",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GetGoalsResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GoalUnauthorizedResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GoalFetchErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new goal. Checks for plan limits.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "goals"
+                ],
+                "summary": "Create goal",
+                "parameters": [
+                    {
+                        "description": "Request body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.CreateGoalRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.CreateGoalResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GoalValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GoalUnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden if max goals reached",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GoalLimitReachedResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GoalCreateErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/goals/{goal_id}/excuses": {
+            "get": {
+                "description": "List excuses, filters by retention days if strictly limited by entitlement.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "excuses"
+                ],
+                "summary": "List excuses for a goal",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Goal ID",
+                        "name": "goal_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "From Date (YYYY-MM-DD)",
+                        "name": "from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "To Date (YYYY-MM-DD)",
+                        "name": "to",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GetExcusesResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Goal ID",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseUnauthorizedResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseFetchErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Upsert excuse for a date. Checks entitlement if using premium template.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "excuses"
+                ],
+                "summary": "Create or update an excuse",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Goal ID",
+                        "name": "goal_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Excuse Data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.CreateExcuseRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseUnauthorizedResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseForbiddenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseCreateErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/goals/{goal_id}/excuses/today": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "excuses"
+                ],
+                "summary": "Get today's excuse for a goal",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Goal ID",
+                        "name": "goal_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Goal ID",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseUnauthorizedResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseNotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseFetchErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/goals/{id}": {
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "goals"
+                ],
+                "summary": "Delete goal",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Goal ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GoalUnauthorizedResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GoalNotFoundErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GoalDeleteErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "goals"
+                ],
+                "summary": "Update goal",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Goal ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Request body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.UpdateGoalRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.CreateGoalResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GoalValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GoalUnauthorizedResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GoalNotFoundErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GoalUpdateErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/me/plan": {
+            "get": {
+                "description": "Returns the user's current subscription plan and their active entitlements.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "plan"
+                ],
+                "summary": "Get current user plan and entitlements",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GetMePlanResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.PlanUnauthorizedResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.PlanFetchErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Updates the user's subscription plan (e.g., from 'free' to 'premium').",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "plan"
+                ],
+                "summary": "Update user plan",
+                "parameters": [
+                    {
+                        "description": "Request body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.PostMePlanRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.PostMePlanResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.PlanValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.PlanUnauthorizedResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.PlanUpdateErrorResponse"
                         }
                     }
                 }
@@ -54,35 +733,558 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "handlers.ErrorResponse": {
+        "handlers.AiUnauthorizedResponse": {
             "type": "object",
             "properties": {
                 "error": {
                     "type": "string",
-                    "example": "missing or invalid Authorization header"
+                    "example": "認証されていません"
                 }
             }
         },
-        "models.User": {
+        "handlers.CreateAiExcuseRequest": {
+            "type": "object",
+            "required": [
+                "date",
+                "goalId"
+            ],
+            "properties": {
+                "context": {
+                    "type": "string",
+                    "example": "会議が多すぎました。"
+                },
+                "date": {
+                    "type": "string",
+                    "example": "2023-10-27"
+                },
+                "goalId": {
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                },
+                "tone": {
+                    "type": "string",
+                    "example": "真面目"
+                }
+            }
+        },
+        "handlers.CreateAiExcuseResponse": {
             "type": "object",
             "properties": {
-                "auth0ID": {
-                    "type": "string"
+                "candidates": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "急な緊急対応が入りました。",
+                        "体調が優れませんでした。"
+                    ]
+                }
+            }
+        },
+        "handlers.CreateExcuseRequest": {
+            "type": "object",
+            "required": [
+                "date",
+                "excuseText"
+            ],
+            "properties": {
+                "date": {
+                    "description": "YYYY-MM-DD",
+                    "type": "string",
+                    "example": "2023-10-27"
                 },
+                "excuseText": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "example": "寝坊しました。"
+                },
+                "templateId": {
+                    "type": "string",
+                    "example": "template_123"
+                }
+            }
+        },
+        "handlers.CreateGoalRequest": {
+            "type": "object",
+            "required": [
+                "title"
+            ],
+            "properties": {
+                "notificationEnabled": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "notificationTime": {
+                    "type": "string",
+                    "example": "20:00"
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "example": "本を10ページ読む"
+                }
+            }
+        },
+        "handlers.CreateGoalResponse": {
+            "type": "object",
+            "properties": {
+                "goal": {
+                    "$ref": "#/definitions/handlers.GoalResponse"
+                }
+            }
+        },
+        "handlers.ExcuseCreateErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "言い訳の作成に失敗しました"
+                }
+            }
+        },
+        "handlers.ExcuseDeleteErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "言い訳の削除に失敗しました"
+                }
+            }
+        },
+        "handlers.ExcuseFetchErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "言い訳の取得に失敗しました"
+                }
+            }
+        },
+        "handlers.ExcuseForbiddenResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "プレミアムテンプレートを利用するにはプレミアムプランが必要です"
+                }
+            }
+        },
+        "handlers.ExcuseNotFoundResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "言い訳が見つかりません"
+                }
+            }
+        },
+        "handlers.ExcuseResponse": {
+            "type": "object",
+            "properties": {
                 "createdAt": {
                     "type": "string"
                 },
-                "email": {
-                    "type": "string"
+                "date": {
+                    "type": "string",
+                    "example": "2023-10-27"
+                },
+                "excuseText": {
+                    "type": "string",
+                    "example": "寝坊しました。"
+                },
+                "goalId": {
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440001"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
                 },
-                "name": {
-                    "type": "string"
+                "templateId": {
+                    "type": "string",
+                    "example": "template_123"
                 },
                 "updatedAt": {
                     "type": "string"
+                }
+            }
+        },
+        "handlers.ExcuseTemplateResponse": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "excuseText": {
+                    "type": "string",
+                    "example": "宿題を犬に食べられました。"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "template_123"
+                },
+                "isPremium": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "packId": {
+                    "type": "string",
+                    "example": "pack_abc"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "面白い",
+                        "定番"
+                    ]
+                }
+            }
+        },
+        "handlers.ExcuseUnauthorizedResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "認証されていません"
+                }
+            }
+        },
+        "handlers.ExcuseUpdateErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "言い訳の更新に失敗しました"
+                }
+            }
+        },
+        "handlers.ExcuseValidationErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "入力内容が正しくありません"
+                }
+            }
+        },
+        "handlers.GetExcuseTemplatesResponse": {
+            "type": "object",
+            "properties": {
+                "templates": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handlers.ExcuseTemplateResponse"
+                    }
+                }
+            }
+        },
+        "handlers.GetExcusesResponse": {
+            "type": "object",
+            "properties": {
+                "excuses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handlers.ExcuseResponse"
+                    }
+                }
+            }
+        },
+        "handlers.GetGoalsResponse": {
+            "type": "object",
+            "properties": {
+                "goals": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handlers.GoalResponse"
+                    }
+                }
+            }
+        },
+        "handlers.GetMePlanResponse": {
+            "type": "object",
+            "properties": {
+                "entitlements": {
+                    "description": "Entitlements struct might need examples in its own definition if not here",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/services.Entitlements"
+                        }
+                    ]
+                },
+                "plan": {
+                    "type": "string",
+                    "example": "premium"
+                }
+            }
+        },
+        "handlers.GoalCreateErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "目標の作成に失敗しました"
+                }
+            }
+        },
+        "handlers.GoalDeleteErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "目標の削除に失敗しました"
+                }
+            }
+        },
+        "handlers.GoalFetchErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "目標の取得に失敗しました"
+                }
+            }
+        },
+        "handlers.GoalLimitReachedResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "プランの目標作成数上限に達しました"
+                }
+            }
+        },
+        "handlers.GoalNotFoundErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "目標が見つかりません"
+                }
+            }
+        },
+        "handlers.GoalResponse": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                },
+                "notificationEnabled": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "notificationTime": {
+                    "type": "string",
+                    "example": "20:00"
+                },
+                "order": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "title": {
+                    "type": "string",
+                    "example": "本を10ページ読む"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.GoalUnauthorizedResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "認証されていません"
+                }
+            }
+        },
+        "handlers.GoalUpdateErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "目標の更新に失敗しました"
+                }
+            }
+        },
+        "handlers.GoalValidationErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "入力内容が正しくありません"
+                }
+            }
+        },
+        "handlers.InternalErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "AI言い訳の生成に失敗しました"
+                }
+            }
+        },
+        "handlers.PlanFetchErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "プランの取得に失敗しました"
+                }
+            }
+        },
+        "handlers.PlanUnauthorizedResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "認証されていません"
+                }
+            }
+        },
+        "handlers.PlanUpdateErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "プランの更新に失敗しました"
+                }
+            }
+        },
+        "handlers.PlanValidationErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "入力内容が正しくありません"
+                }
+            }
+        },
+        "handlers.PostMePlanRequest": {
+            "type": "object",
+            "required": [
+                "plan"
+            ],
+            "properties": {
+                "plan": {
+                    "type": "string",
+                    "example": "premium"
+                }
+            }
+        },
+        "handlers.PostMePlanResponse": {
+            "type": "object",
+            "properties": {
+                "entitlements": {
+                    "$ref": "#/definitions/services.Entitlements"
+                },
+                "plan": {
+                    "type": "string",
+                    "example": "premium"
+                }
+            }
+        },
+        "handlers.PremiumRequiredResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "この機能を利用するにはプレミアムプランが必要です"
+                }
+            }
+        },
+        "handlers.TemplateInternalErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "テンプレートの取得に失敗しました"
+                }
+            }
+        },
+        "handlers.TemplateNotFoundResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "テンプレートが見つかりません"
+                }
+            }
+        },
+        "handlers.TemplateUnauthorizedResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "認証されていません"
+                }
+            }
+        },
+        "handlers.UpdateExcuseRequest": {
+            "type": "object",
+            "properties": {
+                "excuseText": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "example": "盛大に寝坊しました。"
+                },
+                "templateId": {
+                    "type": "string",
+                    "example": "template_123"
+                }
+            }
+        },
+        "handlers.UpdateGoalRequest": {
+            "type": "object",
+            "properties": {
+                "notificationEnabled": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "notificationTime": {
+                    "type": "string",
+                    "example": "21:00"
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "example": "本を20ページ読む"
+                }
+            }
+        },
+        "handlers.ValidationErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "入力内容が正しくありません"
+                }
+            }
+        },
+        "services.Entitlements": {
+            "type": "object",
+            "properties": {
+                "canUseAiExcuse": {
+                    "type": "boolean"
+                },
+                "canUsePremiumTemplates": {
+                    "type": "boolean"
+                },
+                "logRetentionDays": {
+                    "description": "nil = unlimited",
+                    "type": "integer"
+                },
+                "maxGoals": {
+                    "type": "integer"
                 }
             }
         }

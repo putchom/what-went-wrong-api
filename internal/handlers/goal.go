@@ -26,18 +26,20 @@ func NewGoalHandler(db *gorm.DB) *GoalHandler {
 // @Accept json
 // @Produce json
 // @Success 200 {object} GetGoalsResponse
+// @Failure 401 {object} GoalUnauthorizedResponse
+// @Failure 500 {object} GoalFetchErrorResponse
 // @Router /goals [get]
 func (h *GoalHandler) GetGoals(c *gin.Context) {
 	userIDStr, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "認証されていません"})
 		return
 	}
 	userID := userIDStr.(string)
 
 	var goals []models.Goal
 	if err := h.db.Where("user_id = ?", userID).Order("\"order\" asc, created_at desc").Find(&goals).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch goals"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "目標の取得に失敗しました"})
 		return
 	}
 
@@ -64,12 +66,15 @@ func (h *GoalHandler) GetGoals(c *gin.Context) {
 // @Produce json
 // @Param request body CreateGoalRequest true "Request body"
 // @Success 201 {object} CreateGoalResponse
-// @Failure 403 {object} map[string]string "Forbidden if max goals reached"
+// @Failure 400 {object} GoalValidationErrorResponse
+// @Failure 401 {object} GoalUnauthorizedResponse
+// @Failure 403 {object} GoalLimitReachedResponse "Forbidden if max goals reached"
+// @Failure 500 {object} GoalCreateErrorResponse
 // @Router /goals [post]
 func (h *GoalHandler) PostGoals(c *gin.Context) {
 	userIDStr, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "認証されていません"})
 		return
 	}
 	userID := userIDStr.(string)
@@ -77,25 +82,25 @@ func (h *GoalHandler) PostGoals(c *gin.Context) {
 	// Entitlement check
 	entitlementsInterface, exists := c.Get("entitlements")
 	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Entitlements not found"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "プラン情報の取得に失敗しました"})
 		return
 	}
 	entitlements := entitlementsInterface.(services.Entitlements)
 
 	var currentCount int64
 	if err := h.db.Model(&models.Goal{}).Where("user_id = ?", userID).Count(&currentCount).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count goals"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "目標数の取得に失敗しました"})
 		return
 	}
 
 	if int(currentCount) >= entitlements.MaxGoals {
-		c.JSON(http.StatusForbidden, gin.H{"error": "Maximum goal limit reached for your plan"})
+		c.JSON(http.StatusForbidden, gin.H{"error": "プランの目標作成数上限に達しました"})
 		return
 	}
 
 	var req CreateGoalRequest
 	if err := c.BindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "入力内容が正しくありません"})
 		return
 	}
 
@@ -111,7 +116,7 @@ func (h *GoalHandler) PostGoals(c *gin.Context) {
 	}
 
 	if err := h.db.Create(&newGoal).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create goal"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "目標の作成に失敗しました"})
 		return
 	}
 
@@ -136,6 +141,10 @@ func (h *GoalHandler) PostGoals(c *gin.Context) {
 // @Param id path string true "Goal ID"
 // @Param request body UpdateGoalRequest true "Request body"
 // @Success 200 {object} CreateGoalResponse
+// @Failure 400 {object} GoalValidationErrorResponse
+// @Failure 401 {object} GoalUnauthorizedResponse
+// @Failure 404 {object} GoalNotFoundErrorResponse
+// @Failure 500 {object} GoalUpdateErrorResponse
 // @Router /goals/{id} [patch]
 func (h *GoalHandler) PatchGoal(c *gin.Context) {
 	goalID := c.Param("id")
@@ -145,16 +154,16 @@ func (h *GoalHandler) PatchGoal(c *gin.Context) {
 	var goal models.Goal
 	if err := h.db.First(&goal, "id = ? AND user_id = ?", goalID, userID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Goal not found"})
+			c.JSON(http.StatusNotFound, gin.H{"error": "目標が見つかりません"})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch goal"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "目標の取得に失敗しました"})
 		return
 	}
 
 	var req UpdateGoalRequest
 	if err := c.BindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "入力内容が正しくありません"})
 		return
 	}
 
@@ -170,7 +179,7 @@ func (h *GoalHandler) PatchGoal(c *gin.Context) {
 	goal.UpdatedAt = time.Now()
 
 	if err := h.db.Save(&goal).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update goal"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "目標の更新に失敗しました"})
 		return
 	}
 
@@ -194,6 +203,9 @@ func (h *GoalHandler) PatchGoal(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Goal ID"
 // @Success 204 "No Content"
+// @Failure 401 {object} GoalUnauthorizedResponse
+// @Failure 404 {object} GoalNotFoundErrorResponse
+// @Failure 500 {object} GoalDeleteErrorResponse
 // @Router /goals/{id} [delete]
 func (h *GoalHandler) DeleteGoal(c *gin.Context) {
 	goalID := c.Param("id")
@@ -222,10 +234,10 @@ func (h *GoalHandler) DeleteGoal(c *gin.Context) {
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Goal not found"})
+			c.JSON(http.StatusNotFound, gin.H{"error": "目標が見つかりません"})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete goal"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "目標の削除に失敗しました"})
 		return
 	}
 

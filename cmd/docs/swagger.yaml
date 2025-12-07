@@ -1,25 +1,382 @@
 basePath: /api/v1
 definitions:
-  handlers.ErrorResponse:
+  handlers.AiUnauthorizedResponse:
     properties:
       error:
-        example: missing or invalid Authorization header
+        example: 認証されていません
         type: string
     type: object
-  models.User:
+  handlers.CreateAiExcuseRequest:
     properties:
-      auth0ID:
+      context:
+        example: 会議が多すぎました。
         type: string
+      date:
+        example: "2023-10-27"
+        type: string
+      goalId:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      tone:
+        example: 真面目
+        type: string
+    required:
+    - date
+    - goalId
+    type: object
+  handlers.CreateAiExcuseResponse:
+    properties:
+      candidates:
+        example:
+        - 急な緊急対応が入りました。
+        - 体調が優れませんでした。
+        items:
+          type: string
+        type: array
+    type: object
+  handlers.CreateExcuseRequest:
+    properties:
+      date:
+        description: YYYY-MM-DD
+        example: "2023-10-27"
+        type: string
+      excuseText:
+        example: 寝坊しました。
+        maxLength: 500
+        type: string
+      templateId:
+        example: template_123
+        type: string
+    required:
+    - date
+    - excuseText
+    type: object
+  handlers.CreateGoalRequest:
+    properties:
+      notificationEnabled:
+        example: true
+        type: boolean
+      notificationTime:
+        example: "20:00"
+        type: string
+      title:
+        example: 本を10ページ読む
+        maxLength: 200
+        type: string
+    required:
+    - title
+    type: object
+  handlers.CreateGoalResponse:
+    properties:
+      goal:
+        $ref: '#/definitions/handlers.GoalResponse'
+    type: object
+  handlers.ExcuseCreateErrorResponse:
+    properties:
+      error:
+        example: 言い訳の作成に失敗しました
+        type: string
+    type: object
+  handlers.ExcuseDeleteErrorResponse:
+    properties:
+      error:
+        example: 言い訳の削除に失敗しました
+        type: string
+    type: object
+  handlers.ExcuseFetchErrorResponse:
+    properties:
+      error:
+        example: 言い訳の取得に失敗しました
+        type: string
+    type: object
+  handlers.ExcuseForbiddenResponse:
+    properties:
+      error:
+        example: プレミアムテンプレートを利用するにはプレミアムプランが必要です
+        type: string
+    type: object
+  handlers.ExcuseNotFoundResponse:
+    properties:
+      error:
+        example: 言い訳が見つかりません
+        type: string
+    type: object
+  handlers.ExcuseResponse:
+    properties:
       createdAt:
         type: string
-      email:
+      date:
+        example: "2023-10-27"
+        type: string
+      excuseText:
+        example: 寝坊しました。
+        type: string
+      goalId:
+        example: 550e8400-e29b-41d4-a716-446655440001
         type: string
       id:
+        example: 550e8400-e29b-41d4-a716-446655440000
         type: string
-      name:
+      templateId:
+        example: template_123
         type: string
       updatedAt:
         type: string
+    type: object
+  handlers.ExcuseTemplateResponse:
+    properties:
+      createdAt:
+        type: string
+      excuseText:
+        example: 宿題を犬に食べられました。
+        type: string
+      id:
+        example: template_123
+        type: string
+      isPremium:
+        example: false
+        type: boolean
+      packId:
+        example: pack_abc
+        type: string
+      tags:
+        example:
+        - 面白い
+        - 定番
+        items:
+          type: string
+        type: array
+    type: object
+  handlers.ExcuseUnauthorizedResponse:
+    properties:
+      error:
+        example: 認証されていません
+        type: string
+    type: object
+  handlers.ExcuseUpdateErrorResponse:
+    properties:
+      error:
+        example: 言い訳の更新に失敗しました
+        type: string
+    type: object
+  handlers.ExcuseValidationErrorResponse:
+    properties:
+      error:
+        example: 入力内容が正しくありません
+        type: string
+    type: object
+  handlers.GetExcuseTemplatesResponse:
+    properties:
+      templates:
+        items:
+          $ref: '#/definitions/handlers.ExcuseTemplateResponse'
+        type: array
+    type: object
+  handlers.GetExcusesResponse:
+    properties:
+      excuses:
+        items:
+          $ref: '#/definitions/handlers.ExcuseResponse'
+        type: array
+    type: object
+  handlers.GetGoalsResponse:
+    properties:
+      goals:
+        items:
+          $ref: '#/definitions/handlers.GoalResponse'
+        type: array
+    type: object
+  handlers.GetMePlanResponse:
+    properties:
+      entitlements:
+        allOf:
+        - $ref: '#/definitions/services.Entitlements'
+        description: Entitlements struct might need examples in its own definition
+          if not here
+      plan:
+        example: premium
+        type: string
+    type: object
+  handlers.GoalCreateErrorResponse:
+    properties:
+      error:
+        example: 目標の作成に失敗しました
+        type: string
+    type: object
+  handlers.GoalDeleteErrorResponse:
+    properties:
+      error:
+        example: 目標の削除に失敗しました
+        type: string
+    type: object
+  handlers.GoalFetchErrorResponse:
+    properties:
+      error:
+        example: 目標の取得に失敗しました
+        type: string
+    type: object
+  handlers.GoalLimitReachedResponse:
+    properties:
+      error:
+        example: プランの目標作成数上限に達しました
+        type: string
+    type: object
+  handlers.GoalNotFoundErrorResponse:
+    properties:
+      error:
+        example: 目標が見つかりません
+        type: string
+    type: object
+  handlers.GoalResponse:
+    properties:
+      createdAt:
+        type: string
+      id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      notificationEnabled:
+        example: true
+        type: boolean
+      notificationTime:
+        example: "20:00"
+        type: string
+      order:
+        example: 1
+        type: integer
+      title:
+        example: 本を10ページ読む
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  handlers.GoalUnauthorizedResponse:
+    properties:
+      error:
+        example: 認証されていません
+        type: string
+    type: object
+  handlers.GoalUpdateErrorResponse:
+    properties:
+      error:
+        example: 目標の更新に失敗しました
+        type: string
+    type: object
+  handlers.GoalValidationErrorResponse:
+    properties:
+      error:
+        example: 入力内容が正しくありません
+        type: string
+    type: object
+  handlers.InternalErrorResponse:
+    properties:
+      error:
+        example: AI言い訳の生成に失敗しました
+        type: string
+    type: object
+  handlers.PlanFetchErrorResponse:
+    properties:
+      error:
+        example: プランの取得に失敗しました
+        type: string
+    type: object
+  handlers.PlanUnauthorizedResponse:
+    properties:
+      error:
+        example: 認証されていません
+        type: string
+    type: object
+  handlers.PlanUpdateErrorResponse:
+    properties:
+      error:
+        example: プランの更新に失敗しました
+        type: string
+    type: object
+  handlers.PlanValidationErrorResponse:
+    properties:
+      error:
+        example: 入力内容が正しくありません
+        type: string
+    type: object
+  handlers.PostMePlanRequest:
+    properties:
+      plan:
+        example: premium
+        type: string
+    required:
+    - plan
+    type: object
+  handlers.PostMePlanResponse:
+    properties:
+      entitlements:
+        $ref: '#/definitions/services.Entitlements'
+      plan:
+        example: premium
+        type: string
+    type: object
+  handlers.PremiumRequiredResponse:
+    properties:
+      error:
+        example: この機能を利用するにはプレミアムプランが必要です
+        type: string
+    type: object
+  handlers.TemplateInternalErrorResponse:
+    properties:
+      error:
+        example: テンプレートの取得に失敗しました
+        type: string
+    type: object
+  handlers.TemplateNotFoundResponse:
+    properties:
+      error:
+        example: テンプレートが見つかりません
+        type: string
+    type: object
+  handlers.TemplateUnauthorizedResponse:
+    properties:
+      error:
+        example: 認証されていません
+        type: string
+    type: object
+  handlers.UpdateExcuseRequest:
+    properties:
+      excuseText:
+        example: 盛大に寝坊しました。
+        maxLength: 500
+        type: string
+      templateId:
+        example: template_123
+        type: string
+    type: object
+  handlers.UpdateGoalRequest:
+    properties:
+      notificationEnabled:
+        example: false
+        type: boolean
+      notificationTime:
+        example: "21:00"
+        type: string
+      title:
+        example: 本を20ページ読む
+        maxLength: 200
+        type: string
+    type: object
+  handlers.ValidationErrorResponse:
+    properties:
+      error:
+        example: 入力内容が正しくありません
+        type: string
+    type: object
+  services.Entitlements:
+    properties:
+      canUseAiExcuse:
+        type: boolean
+      canUsePremiumTemplates:
+        type: boolean
+      logRetentionDays:
+        description: nil = unlimited
+        type: integer
+      maxGoals:
+        type: integer
     type: object
 info:
   contact: {}
@@ -27,29 +384,479 @@ info:
   title: What Went Wrong API
   version: "1.0"
 paths:
-  /users:
-    get:
+  /ai-excuse:
+    post:
       consumes:
       - application/json
-      description: Get a list of all users from database. Requires Bearer token authentication.
+      description: Generate excuse candidates using AI. Requires premium plan.
+      parameters:
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateAiExcuseRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/models.User'
-            type: array
+            $ref: '#/definitions/handlers.CreateAiExcuseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ValidationErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: Get all users
+            $ref: '#/definitions/handlers.AiUnauthorizedResponse'
+        "403":
+          description: Forbidden if not premium
+          schema:
+            $ref: '#/definitions/handlers.PremiumRequiredResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.InternalErrorResponse'
+      summary: Generate AI excuses
       tags:
-      - users
+      - ai
+  /excuse-templates:
+    get:
+      consumes:
+      - application/json
+      description: Get excuse templates. Can filter by pack_id. Premium users can
+        access all. Free users restricted from premium packs.
+      parameters:
+      - description: Pack ID to filter
+        in: query
+        name: pack_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.GetExcuseTemplatesResponse'
+      summary: List excuse templates
+      tags:
+      - excuse-templates
+  /excuse-templates/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Template ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.ExcuseTemplateResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.TemplateUnauthorizedResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.TemplateNotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.TemplateInternalErrorResponse'
+      summary: Get template details
+      tags:
+      - excuse-templates
+  /excuses/{id}:
+    delete:
+      parameters:
+      - description: Excuse ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Invalid Excuse ID
+          schema:
+            $ref: '#/definitions/handlers.ExcuseValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ExcuseUnauthorizedResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ExcuseNotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ExcuseDeleteErrorResponse'
+      summary: Delete an excuse
+      tags:
+      - excuses
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Excuse ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateExcuseRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.ExcuseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ExcuseValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ExcuseUnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ExcuseForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ExcuseNotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ExcuseUpdateErrorResponse'
+      summary: Update an excuse
+      tags:
+      - excuses
+  /goals:
+    get:
+      consumes:
+      - application/json
+      description: Get all goals for the current user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.GetGoalsResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.GoalUnauthorizedResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.GoalFetchErrorResponse'
+      summary: List goals
+      tags:
+      - goals
+    post:
+      consumes:
+      - application/json
+      description: Create a new goal. Checks for plan limits.
+      parameters:
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateGoalRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handlers.CreateGoalResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.GoalValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.GoalUnauthorizedResponse'
+        "403":
+          description: Forbidden if max goals reached
+          schema:
+            $ref: '#/definitions/handlers.GoalLimitReachedResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.GoalCreateErrorResponse'
+      summary: Create goal
+      tags:
+      - goals
+  /goals/{goal_id}/excuses:
+    get:
+      consumes:
+      - application/json
+      description: List excuses, filters by retention days if strictly limited by
+        entitlement.
+      parameters:
+      - description: Goal ID
+        in: path
+        name: goal_id
+        required: true
+        type: string
+      - description: From Date (YYYY-MM-DD)
+        in: query
+        name: from
+        type: string
+      - description: To Date (YYYY-MM-DD)
+        in: query
+        name: to
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.GetExcusesResponse'
+        "400":
+          description: Invalid Goal ID
+          schema:
+            $ref: '#/definitions/handlers.ExcuseValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ExcuseUnauthorizedResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ExcuseFetchErrorResponse'
+      summary: List excuses for a goal
+      tags:
+      - excuses
+    post:
+      consumes:
+      - application/json
+      description: Upsert excuse for a date. Checks entitlement if using premium template.
+      parameters:
+      - description: Goal ID
+        in: path
+        name: goal_id
+        required: true
+        type: string
+      - description: Excuse Data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateExcuseRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handlers.ExcuseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ExcuseValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ExcuseUnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/handlers.ExcuseForbiddenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ExcuseCreateErrorResponse'
+      summary: Create or update an excuse
+      tags:
+      - excuses
+  /goals/{goal_id}/excuses/today:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Goal ID
+        in: path
+        name: goal_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.ExcuseResponse'
+        "400":
+          description: Invalid Goal ID
+          schema:
+            $ref: '#/definitions/handlers.ExcuseValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ExcuseUnauthorizedResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ExcuseNotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ExcuseFetchErrorResponse'
+      summary: Get today's excuse for a goal
+      tags:
+      - excuses
+  /goals/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Goal ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.GoalUnauthorizedResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.GoalNotFoundErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.GoalDeleteErrorResponse'
+      summary: Delete goal
+      tags:
+      - goals
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Goal ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateGoalRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.CreateGoalResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.GoalValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.GoalUnauthorizedResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.GoalNotFoundErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.GoalUpdateErrorResponse'
+      summary: Update goal
+      tags:
+      - goals
+  /me/plan:
+    get:
+      consumes:
+      - application/json
+      description: Returns the user's current subscription plan and their active entitlements.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.GetMePlanResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.PlanUnauthorizedResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.PlanFetchErrorResponse'
+      summary: Get current user plan and entitlements
+      tags:
+      - plan
+    post:
+      consumes:
+      - application/json
+      description: Updates the user's subscription plan (e.g., from 'free' to 'premium').
+      parameters:
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.PostMePlanRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.PostMePlanResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.PlanValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.PlanUnauthorizedResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.PlanUpdateErrorResponse'
+      summary: Update user plan
+      tags:
+      - plan
 securityDefinitions:
   BearerAuth:
     in: header

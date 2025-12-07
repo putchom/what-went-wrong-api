@@ -33,7 +33,7 @@ func (h *ExcuseTemplateHandler) GetExcuseTemplates(c *gin.Context) {
 	// Entitlement check
 	entitlementsInterface, exists := c.Get("entitlements")
 	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Entitlements not found"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "プラン情報の取得に失敗しました"})
 		return
 	}
 	entitlements := entitlementsInterface.(services.Entitlements)
@@ -43,34 +43,26 @@ func (h *ExcuseTemplateHandler) GetExcuseTemplates(c *gin.Context) {
 	if packID != "" {
 		// If requesting a premium pack, check entitlement
 		// For now, let's assume packs starting with "premium-" are premium, or we check specific IDs.
-		// OR, we can rely on `IsPremium` flag on the template if we had one.
-		// The model `ExcuseTemplate` has `IsPremium`. Let's use that logic?
-		// Wait, `ExcuseTemplate` in `models/excuse.go` has `IsPremium`.
-		// If filtering by pack_id, we should check if *that pack* contains premium templates?
-		// A simpler logic: If user is not premium, exclude `is_premium = true`.
-
 		query = query.Where("pack_id = ?", packID)
 	}
 
+	// Filter premium if not entitled
+	// Actually spec says "free users restricted from premium packs".
+	// Implementation: list all but maybe show isPremium? Or hide premium templates?
+	// Let's assume hiding premium templates for free users if that's the requirement, or just returning all so they can see what they are missing.
+	// Re-reading docstring: "Free users restricted from premium packs".
 	if !entitlements.CanUsePremiumTemplates {
-		// Enforce free user restriction: Cannot see premium templates
 		query = query.Where("is_premium = ?", false)
 	}
 
 	var templates []models.ExcuseTemplate
 	if err := query.Find(&templates).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch templates"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "テンプレートの取得に失敗しました"})
 		return
 	}
 
 	res := GetExcuseTemplatesResponse{Templates: make([]ExcuseTemplateResponse, len(templates))}
 	for i, t := range templates {
-		// Assuming Tags is stored as JSON or string array in DB, GORM handles it if configured
-		// In `models/excuse.go`, tags is `type:text[]`. Gorm's postgres driver handles `lib/pq` array?
-		// Or we need a scanner. For now, let's assume it works or is handled.
-		// Looking at `models/excuse.go`, it's `pq.StringArray` likely.
-		// Let's verify `models/excuse.go` again. It says `Tags []string gorm:"type:text[]"`.
-
 		res.Templates[i] = ExcuseTemplateResponse{
 			ID:         t.ID,
 			PackID:     t.PackID,
@@ -91,13 +83,16 @@ func (h *ExcuseTemplateHandler) GetExcuseTemplates(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Template ID"
 // @Success 200 {object} ExcuseTemplateResponse
+// @Failure 401 {object} TemplateUnauthorizedResponse
+// @Failure 404 {object} TemplateNotFoundResponse
+// @Failure 500 {object} TemplateInternalErrorResponse
 // @Router /excuse-templates/{id} [get]
 func (h *ExcuseTemplateHandler) GetExcuseTemplate(c *gin.Context) {
 	id := c.Param("id")
 
 	entitlementsInterface, exists := c.Get("entitlements")
 	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Entitlements not found"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "プラン情報の取得に失敗しました"})
 		return
 	}
 	entitlements := entitlementsInterface.(services.Entitlements)
@@ -105,15 +100,15 @@ func (h *ExcuseTemplateHandler) GetExcuseTemplate(c *gin.Context) {
 	var t models.ExcuseTemplate
 	if err := h.db.First(&t, "id = ?", id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "Template not found"})
+			c.JSON(http.StatusNotFound, gin.H{"error": "テンプレートが見つかりません"})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch template"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "テンプレートの取得に失敗しました"})
 		return
 	}
 
 	if t.IsPremium && !entitlements.CanUsePremiumTemplates {
-		c.JSON(http.StatusForbidden, gin.H{"error": "This template requires a premium plan"})
+		c.JSON(http.StatusForbidden, gin.H{"error": "プレミアムテンプレートを利用するにはプレミアムプランが必要です"})
 		return
 	}
 
