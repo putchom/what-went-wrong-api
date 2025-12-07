@@ -9,6 +9,7 @@ import (
 	"what-went-wrong-api/internal/middleware"
 	"what-went-wrong-api/internal/models"
 	"what-went-wrong-api/internal/seed"
+	"what-went-wrong-api/internal/services"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -72,6 +73,20 @@ func main() {
 		log.Fatalf("Failed to initialize auth middleware: %v", err)
 	}
 
+	// Serviceの初期化
+	entitlementService := services.NewEntitlementService(db)
+	planHandler := handlers.NewPlanHandler(entitlementService)
+
+	// AIHandler も復活させる (別Issueの実装だが、依存関係として EntitlementService が必要だったため)
+	// ただし、AIHandler のソースコードは別ブランチだが、main にマージされている前提で書くか？
+	// ユーザーは main ブランチに戻したと言っていた。
+	// ここでは Issue #6 の範囲である「プラン管理」に集中するが、
+	// ユーザーが「Issue #6 を実装」と言った時、Issue #7 のコードは消えている状態 (main ブランチ)。
+	// なので、AI関連のコードは参照できない可能性がある。
+	// しかし、先ほどのステップで AI関連のファイルは削除されたと出ている。
+	// したがって、AIの実装は入れない。
+	// Planの実装だけを入れる。
+
 	// Ginエンジンのインスタンスを作成
 	r := gin.Default()
 
@@ -80,6 +95,8 @@ func main() {
 	v1.Use(authMiddleware)
 	{
 		v1.GET("/users", handlers.GetUsers(db))
+		v1.GET("/me/plan", planHandler.GetMePlan)
+		v1.POST("/me/plan", planHandler.PostMePlan)
 	}
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	r.Run(":8080")
