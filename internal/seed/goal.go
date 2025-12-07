@@ -27,7 +27,7 @@ func SeedGoals(db *gorm.DB) error {
 		notifTime := "09:00"
 		goals = append(goals, models.Goal{
 			UserID:              user.ID,
-			Title:               "Wake up early",
+			Title:               "早起きする",
 			NotificationTime:    &notifTime,
 			NotificationEnabled: true,
 			Order:               1,
@@ -35,7 +35,7 @@ func SeedGoals(db *gorm.DB) error {
 
 		goals = append(goals, models.Goal{
 			UserID:              user.ID,
-			Title:               "Study Go",
+			Title:               "Go言語を勉強する",
 			NotificationEnabled: false,
 			Order:               2,
 		})

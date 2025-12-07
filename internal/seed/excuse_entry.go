@@ -37,7 +37,7 @@ func SeedExcuseEntries(db *gorm.DB) error {
 				UserID:     goal.UserID,
 				GoalID:     goal.ID,
 				Date:       today,
-				ExcuseText: "It was too hard.",
+				ExcuseText: "難しすぎた。",
 				TemplateID: nil,
 			})
 		} else {
@@ -46,7 +46,7 @@ func SeedExcuseEntries(db *gorm.DB) error {
 				UserID:     goal.UserID,
 				GoalID:     goal.ID,
 				Date:       yesterday,
-				ExcuseText: "Gravity was unusually strong.",
+				ExcuseText: "重力が異常に強かった。",
 				TemplateID: &templateID,
 			})
 		}

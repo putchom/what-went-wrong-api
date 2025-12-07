@@ -20,35 +20,35 @@ func SeedExcuseTemplates(db *gorm.DB) error {
 	templates := []models.ExcuseTemplate{
 		{
 			ID:        "gravity-strong",
-			Text:      "Today, gravity was unusually strong.",
+			Text:      "今日は重力が強かった。",
 			PackID:    "core",
 			IsActive:  true,
 			IsPremium: false,
-			Tags:      pq.StringArray{"physics", "funny"},
+			Tags:      pq.StringArray{"物理", "面白い"},
 		},
 		{
 			ID:        "cat-monitor",
-			Text:      "My cat fell asleep on my monitor.",
+			Text:      "猫がモニターの上で寝てしまった。",
 			PackID:    "core",
 			IsActive:  true,
 			IsPremium: false,
-			Tags:      pq.StringArray{"cat", "cute"},
+			Tags:      pq.StringArray{"猫", "かわいい"},
 		},
 		{
 			ID:        "coffee-spill",
-			Text:      "I spilled coffee on my keyboard.",
+			Text:      "キーボードにコーヒーをこぼした。",
 			PackID:    "core",
 			IsActive:  true,
 			IsPremium: false,
-			Tags:      pq.StringArray{"accident", "coffee"},
+			Tags:      pq.StringArray{"事故", "コーヒー"},
 		},
 		{
 			ID:        "aliens",
-			Text:      "Aliens abducted my motivation.",
+			Text:      "エイリアンにやる気を奪われた。",
 			PackID:    "surreal",
 			IsActive:  true,
 			IsPremium: true,
-			Tags:      pq.StringArray{"scifi", "alien"},
+			Tags:      pq.StringArray{"SF", "エイリアン"},
 		},
 	}
 
