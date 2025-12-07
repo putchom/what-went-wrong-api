@@ -77,7 +77,10 @@ func main() {
 	entitlementService := services.NewEntitlementService(db)
 	planHandler := handlers.NewPlanHandler(entitlementService)
 	aiService := services.NewMockAIService()
-	aiHandler := handlers.NewAIHandler(entitlementService, aiService)
+	aiHandler := handlers.NewAIHandler(aiService)
+
+	// Middleware の初期化
+	entitlementMiddleware := middleware.NewEntitlementMiddleware(entitlementService)
 
 	// Ginエンジンのインスタンスを作成
 	r := gin.Default()
@@ -85,6 +88,7 @@ func main() {
 	docs.SwaggerInfo.BasePath = "/api/v1"
 	v1 := r.Group("/api/v1")
 	v1.Use(authMiddleware)
+	v1.Use(entitlementMiddleware)
 	{
 		v1.GET("/users", handlers.GetUsers(db))
 		v1.GET("/me/plan", planHandler.GetMePlan)
