@@ -26,7 +26,7 @@ func NewTemplateHandler(db *gorm.DB) *TemplateHandler {
 // @Produce json
 // @Param pack_id query string false "Pack ID to filter"
 // @Success 200 {object} GetTemplatesResponse
-// @Router /templates [get]
+// @Router /excuse-templates [get]
 func (h *TemplateHandler) GetTemplates(c *gin.Context) {
 	packID := c.Query("pack_id")
 
@@ -91,7 +91,7 @@ func (h *TemplateHandler) GetTemplates(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Template ID"
 // @Success 200 {object} ExcuseTemplateResponse
-// @Router /templates/{id} [get]
+// @Router /excuse-templates/{id} [get]
 func (h *TemplateHandler) GetTemplate(c *gin.Context) {
 	id := c.Param("id")
 

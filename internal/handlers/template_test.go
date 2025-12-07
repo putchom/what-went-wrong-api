@@ -50,7 +50,7 @@ func TestGetTemplates(t *testing.T) {
 		c.Set("userID", userID.String())
 		// Free user
 		c.Set("entitlements", services.Entitlements{CanUsePremiumTemplates: false})
-		c.Request, _ = http.NewRequest("GET", "/templates", nil)
+		c.Request, _ = http.NewRequest("GET", "/excuse-templates", nil)
 
 		handler.GetTemplates(c)
 
@@ -82,7 +82,7 @@ func TestGetTemplates(t *testing.T) {
 		c.Set("userID", userID.String())
 		// Premium user
 		c.Set("entitlements", services.Entitlements{CanUsePremiumTemplates: true})
-		c.Request, _ = http.NewRequest("GET", "/templates", nil)
+		c.Request, _ = http.NewRequest("GET", "/excuse-templates", nil)
 
 		handler.GetTemplates(c)
 
@@ -110,7 +110,7 @@ func TestGetTemplates(t *testing.T) {
 		c.Set("userID", userID.String())
 		c.Set("entitlements", services.Entitlements{CanUsePremiumTemplates: true})
 		// Filter query
-		c.Request, _ = http.NewRequest("GET", "/templates?pack_id=pack-1", nil)
+		c.Request, _ = http.NewRequest("GET", "/excuse-templates?pack_id=pack-1", nil)
 
 		handler.GetTemplates(c)
 
