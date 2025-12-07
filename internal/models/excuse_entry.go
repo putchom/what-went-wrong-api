@@ -16,10 +16,3 @@ type ExcuseEntry struct {
 	CreatedAt  time.Time `gorm:"default:CURRENT_TIMESTAMP"`
 	UpdatedAt  time.Time `gorm:"default:CURRENT_TIMESTAMP"`
 }
-
-type ExcuseTemplate struct {
-	ID       string `gorm:"primaryKey;size:255"` // "gravity-strong" etc
-	Text     string `gorm:"type:text;not null"`
-	PackID   string `gorm:"size:255;default:'core'"` // "core", "pack.surreal", etc
-	IsActive bool   `gorm:"default:true"`
-}
