@@ -53,7 +53,6 @@ func main() {
 
 	// データベースにテーブルを作成
 	db.AutoMigrate(
-		&models.User{},
 		&models.Goal{},
 		&models.ExcuseEntry{},
 		&models.ExcuseTemplate{},
@@ -93,7 +92,6 @@ func main() {
 	v1.Use(authMiddleware)
 	v1.Use(entitlementMiddleware)
 	{
-		v1.GET("/users", handlers.GetUsers(db))
 		v1.GET("/me/plan", planHandler.GetMePlan)
 		v1.POST("/me/plan", planHandler.PostMePlan)
 		v1.POST("/ai-excuse", aiHandler.PostAiExcuse)

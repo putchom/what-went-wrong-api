@@ -8,7 +8,7 @@ import (
 
 type Goal struct {
 	ID                  uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey"`
-	UserID              uuid.UUID `gorm:"type:uuid;not null;index"`
+	UserID              string    `gorm:"size:255;not null;index"`
 	Title               string    `gorm:"size:255;not null"`
 	NotificationTime    *string   `gorm:"size:5"` // "HH:MM" format
 	NotificationEnabled bool      `gorm:"default:false"`

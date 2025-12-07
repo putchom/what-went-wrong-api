@@ -16,17 +16,14 @@ func SeedGoals(db *gorm.DB) error {
 		return nil
 	}
 
-	var users []models.User
-	if err := db.Find(&users).Error; err != nil {
-		return err
-	}
+	users := []string{"auth0|dummy1", "auth0|dummy2", "auth0|dummy3"}
 
 	var goals []models.Goal
 
-	for _, user := range users {
+	for _, userID := range users {
 		notifTime := "09:00"
 		goals = append(goals, models.Goal{
-			UserID:              user.ID,
+			UserID:              userID,
 			Title:               "早起きする",
 			NotificationTime:    &notifTime,
 			NotificationEnabled: true,
@@ -34,7 +31,7 @@ func SeedGoals(db *gorm.DB) error {
 		})
 
 		goals = append(goals, models.Goal{
-			UserID:              user.ID,
+			UserID:              userID,
 			Title:               "Go言語を勉強する",
 			NotificationEnabled: false,
 			Order:               2,

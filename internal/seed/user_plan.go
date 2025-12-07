@@ -16,9 +16,13 @@ func SeedUserPlans(db *gorm.DB) error {
 		return nil
 	}
 
-	var users []models.User
-	if err := db.Find(&users).Error; err != nil {
-		return err
+	users := []struct {
+		ID    string
+		Email string
+	}{
+		{ID: "auth0|dummy1", Email: "taro@example.com"},
+		{ID: "auth0|dummy2", Email: "hanako@example.com"},
+		{ID: "auth0|dummy3", Email: "jiro@example.com"},
 	}
 
 	var plans []models.UserPlan

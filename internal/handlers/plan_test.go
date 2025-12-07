@@ -11,7 +11,6 @@ import (
 	"what-went-wrong-api/internal/services"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -20,7 +19,7 @@ type MockEntitlementManager struct {
 	mock.Mock
 }
 
-func (m *MockEntitlementManager) GetPlan(userID uuid.UUID) (*models.UserPlan, error) {
+func (m *MockEntitlementManager) GetPlan(userID string) (*models.UserPlan, error) {
 	args := m.Called(userID)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -33,7 +32,7 @@ func (m *MockEntitlementManager) GetEntitlements(planName string) services.Entit
 	return args.Get(0).(services.Entitlements)
 }
 
-func (m *MockEntitlementManager) UpdatePlan(userID uuid.UUID, planName string) (*models.UserPlan, error) {
+func (m *MockEntitlementManager) UpdatePlan(userID string, planName string) (*models.UserPlan, error) {
 	args := m.Called(userID, planName)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
@@ -48,7 +47,7 @@ func TestGetMePlan(t *testing.T) {
 		mockManager := new(MockEntitlementManager)
 		handler := NewPlanHandler(mockManager)
 
-		userID := uuid.New()
+		userID := "auth0|test"
 		mockPlan := &models.UserPlan{UserID: userID, Plan: "free"}
 		mockEntitlements := services.Entitlements{MaxGoals: 3}
 
@@ -57,7 +56,7 @@ func TestGetMePlan(t *testing.T) {
 
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
-		c.Set("userID", userID.String())
+		c.Set("userID", userID)
 
 		c.Request, _ = http.NewRequest("GET", "/me/plan", nil)
 		handler.GetMePlan(c)
@@ -77,7 +76,7 @@ func TestPostMePlan(t *testing.T) {
 		mockManager := new(MockEntitlementManager)
 		handler := NewPlanHandler(mockManager)
 
-		userID := uuid.New()
+		userID := "auth0|test"
 		updatedPlan := &models.UserPlan{
 			UserID:    userID,
 			Plan:      "premium",
@@ -90,7 +89,7 @@ func TestPostMePlan(t *testing.T) {
 
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
-		c.Set("userID", userID.String())
+		c.Set("userID", userID)
 
 		reqBody := PostMePlanRequest{Plan: "premium"}
 		jsonBytes, _ := json.Marshal(reqBody)

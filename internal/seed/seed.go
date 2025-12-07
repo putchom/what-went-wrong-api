@@ -9,10 +9,6 @@ import (
 
 func Run(db *gorm.DB) error {
 	return db.Transaction(func(tx *gorm.DB) error {
-		if err := SeedUsers(tx); err != nil {
-			return fmt.Errorf("failed to seed users: %w", err)
-		}
-
 		if err := SeedUserPlans(tx); err != nil {
 			return fmt.Errorf("failed to seed user plans: %w", err)
 		}
