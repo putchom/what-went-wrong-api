@@ -78,6 +78,7 @@ func main() {
 	planHandler := handlers.NewPlanHandler(entitlementService)
 	aiService := services.NewMockAIService()
 	aiHandler := handlers.NewAIHandler(aiService)
+	goalHandler := handlers.NewGoalHandler(db)
 
 	// Middleware の初期化
 	entitlementMiddleware := middleware.NewEntitlementMiddleware(entitlementService)
@@ -94,6 +95,10 @@ func main() {
 		v1.GET("/me/plan", planHandler.GetMePlan)
 		v1.POST("/me/plan", planHandler.PostMePlan)
 		v1.POST("/ai-excuse", aiHandler.PostAiExcuse)
+		v1.GET("/goals", goalHandler.GetGoals)
+		v1.POST("/goals", goalHandler.PostGoals)
+		v1.PATCH("/goals/:id", goalHandler.PatchGoal)
+		v1.DELETE("/goals/:id", goalHandler.DeleteGoal)
 	}
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	r.Run(":8080")
