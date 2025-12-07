@@ -64,7 +64,12 @@ func SetupTestDB(t *testing.T) (*gorm.DB, func()) {
 	}
 	assert.NoError(t, err, "テストデータベースへの接続に失敗しました")
 
-	err = db.AutoMigrate(&models.User{})
+	err = db.AutoMigrate(
+		&models.User{},
+		&models.Goal{},
+		&models.ExcuseEntry{},
+		&models.UserPlan{},
+	)
 	assert.NoError(t, err, "マイグレーションに失敗しました")
 
 	cleanup := func() {
