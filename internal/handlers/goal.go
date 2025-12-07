@@ -26,7 +26,7 @@ func NewGoalHandler(db *gorm.DB) *GoalHandler {
 // @Accept json
 // @Produce json
 // @Success 200 {object} GetGoalsResponse
-// @Failure 401 {object} GoalFetchErrorResponse "Unauthorized"
+// @Failure 401 {object} GoalUnauthorizedResponse
 // @Failure 500 {object} GoalFetchErrorResponse
 // @Router /goals [get]
 func (h *GoalHandler) GetGoals(c *gin.Context) {
@@ -67,6 +67,7 @@ func (h *GoalHandler) GetGoals(c *gin.Context) {
 // @Param request body CreateGoalRequest true "Request body"
 // @Success 201 {object} CreateGoalResponse
 // @Failure 400 {object} GoalValidationErrorResponse
+// @Failure 401 {object} GoalUnauthorizedResponse
 // @Failure 403 {object} GoalLimitReachedResponse "Forbidden if max goals reached"
 // @Failure 500 {object} GoalCreateErrorResponse
 // @Router /goals [post]
@@ -141,6 +142,7 @@ func (h *GoalHandler) PostGoals(c *gin.Context) {
 // @Param request body UpdateGoalRequest true "Request body"
 // @Success 200 {object} CreateGoalResponse
 // @Failure 400 {object} GoalValidationErrorResponse
+// @Failure 401 {object} GoalUnauthorizedResponse
 // @Failure 404 {object} GoalNotFoundErrorResponse
 // @Failure 500 {object} GoalUpdateErrorResponse
 // @Router /goals/{id} [patch]
@@ -201,6 +203,7 @@ func (h *GoalHandler) PatchGoal(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Goal ID"
 // @Success 204 "No Content"
+// @Failure 401 {object} GoalUnauthorizedResponse
 // @Failure 404 {object} GoalNotFoundErrorResponse
 // @Failure 500 {object} GoalDeleteErrorResponse
 // @Router /goals/{id} [delete]

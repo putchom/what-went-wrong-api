@@ -29,6 +29,7 @@ func NewPlanHandler(entitlementService EntitlementManager) *PlanHandler {
 // @Accept json
 // @Produce json
 // @Success 200 {object} GetMePlanResponse
+// @Failure 401 {object} PlanUnauthorizedResponse
 // @Failure 500 {object} PlanFetchErrorResponse
 // @Router /me/plan [get]
 func (h *PlanHandler) GetMePlan(c *gin.Context) {
@@ -62,6 +63,7 @@ func (h *PlanHandler) GetMePlan(c *gin.Context) {
 // @Param request body PostMePlanRequest true "Request body"
 // @Success 200 {object} PostMePlanResponse
 // @Failure 400 {object} PlanValidationErrorResponse
+// @Failure 401 {object} PlanUnauthorizedResponse
 // @Failure 500 {object} PlanUpdateErrorResponse
 // @Router /me/plan [post]
 func (h *PlanHandler) PostMePlan(c *gin.Context) {

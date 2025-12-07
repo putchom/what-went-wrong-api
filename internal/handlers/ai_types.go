@@ -11,6 +11,10 @@ type CreateAiExcuseResponse struct {
 	Candidates []string `json:"candidates" example:"急な緊急対応が入りました。,体調が優れませんでした。"`
 }
 
+type AiUnauthorizedResponse struct {
+	Error string `json:"error" example:"認証されていません"`
+}
+
 type ValidationErrorResponse struct {
 	Error string `json:"error" example:"入力内容が正しくありません"`
 }

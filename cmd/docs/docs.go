@@ -52,6 +52,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/handlers.ValidationErrorResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.AiUnauthorizedResponse"
+                        }
+                    },
                     "403": {
                         "description": "Forbidden if not premium",
                         "schema": {
@@ -126,6 +132,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/handlers.ExcuseTemplateResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.TemplateUnauthorizedResponse"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -164,6 +176,12 @@ const docTemplate = `{
                         "description": "Invalid Excuse ID",
                         "schema": {
                             "$ref": "#/definitions/handlers.ExcuseValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseUnauthorizedResponse"
                         }
                     },
                     "404": {
@@ -222,6 +240,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/handlers.ExcuseValidationErrorResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseUnauthorizedResponse"
+                        }
+                    },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
@@ -266,7 +290,7 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/handlers.GoalFetchErrorResponse"
+                            "$ref": "#/definitions/handlers.GoalUnauthorizedResponse"
                         }
                     },
                     "500": {
@@ -311,6 +335,12 @@ const docTemplate = `{
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/handlers.GoalValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GoalUnauthorizedResponse"
                         }
                     },
                     "403": {
@@ -375,6 +405,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/handlers.ExcuseValidationErrorResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseUnauthorizedResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -426,6 +462,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/handlers.ExcuseValidationErrorResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseUnauthorizedResponse"
+                        }
+                    },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
@@ -475,6 +517,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/handlers.ExcuseValidationErrorResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseUnauthorizedResponse"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -514,6 +562,12 @@ const docTemplate = `{
                 "responses": {
                     "204": {
                         "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GoalUnauthorizedResponse"
+                        }
                     },
                     "404": {
                         "description": "Not Found",
@@ -571,6 +625,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/handlers.GoalValidationErrorResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GoalUnauthorizedResponse"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -604,6 +664,12 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/handlers.GetMePlanResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.PlanUnauthorizedResponse"
                         }
                     },
                     "500": {
@@ -650,6 +716,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/handlers.PlanValidationErrorResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.PlanUnauthorizedResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -661,6 +733,15 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "handlers.AiUnauthorizedResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "認証されていません"
+                }
+            }
+        },
         "handlers.CreateAiExcuseRequest": {
             "type": "object",
             "required": [
@@ -863,6 +944,15 @@ const docTemplate = `{
                 }
             }
         },
+        "handlers.ExcuseUnauthorizedResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "認証されていません"
+                }
+            }
+        },
         "handlers.ExcuseUpdateErrorResponse": {
             "type": "object",
             "properties": {
@@ -1007,6 +1097,15 @@ const docTemplate = `{
                 }
             }
         },
+        "handlers.GoalUnauthorizedResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "認証されていません"
+                }
+            }
+        },
         "handlers.GoalUpdateErrorResponse": {
             "type": "object",
             "properties": {
@@ -1040,6 +1139,15 @@ const docTemplate = `{
                 "error": {
                     "type": "string",
                     "example": "プランの取得に失敗しました"
+                }
+            }
+        },
+        "handlers.PlanUnauthorizedResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "認証されていません"
                 }
             }
         },
@@ -1109,6 +1217,15 @@ const docTemplate = `{
                 "error": {
                     "type": "string",
                     "example": "テンプレートが見つかりません"
+                }
+            }
+        },
+        "handlers.TemplateUnauthorizedResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "認証されていません"
                 }
             }
         },

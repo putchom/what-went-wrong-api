@@ -31,6 +31,7 @@ func NewExcuseHandler(db *gorm.DB) *ExcuseHandler {
 // @Param to query string false "To Date (YYYY-MM-DD)"
 // @Success 200 {object} GetExcusesResponse
 // @Failure 400 {object} ExcuseValidationErrorResponse "Invalid Goal ID"
+// @Failure 401 {object} ExcuseUnauthorizedResponse
 // @Failure 500 {object} ExcuseFetchErrorResponse
 // @Router /goals/{goal_id}/excuses [get]
 func (h *ExcuseHandler) GetExcuses(c *gin.Context) {
@@ -104,6 +105,7 @@ func (h *ExcuseHandler) GetExcuses(c *gin.Context) {
 // @Param goal_id path string true "Goal ID"
 // @Success 200 {object} ExcuseResponse
 // @Failure 400 {object} ExcuseValidationErrorResponse "Invalid Goal ID"
+// @Failure 401 {object} ExcuseUnauthorizedResponse
 // @Failure 404 {object} ExcuseNotFoundResponse
 // @Failure 500 {object} ExcuseFetchErrorResponse
 // @Router /goals/{goal_id}/excuses/today [get]
@@ -154,6 +156,7 @@ func (h *ExcuseHandler) GetExcuseToday(c *gin.Context) {
 // @Param request body CreateExcuseRequest true "Excuse Data"
 // @Success 201 {object} ExcuseResponse
 // @Failure 400 {object} ExcuseValidationErrorResponse
+// @Failure 401 {object} ExcuseUnauthorizedResponse
 // @Failure 403 {object} ExcuseForbiddenResponse
 // @Failure 500 {object} ExcuseCreateErrorResponse
 // @Router /goals/{goal_id}/excuses [post]
@@ -232,6 +235,7 @@ func (h *ExcuseHandler) PostExcuse(c *gin.Context) {
 // @Param request body UpdateExcuseRequest true "Update Data"
 // @Success 200 {object} ExcuseResponse
 // @Failure 400 {object} ExcuseValidationErrorResponse
+// @Failure 401 {object} ExcuseUnauthorizedResponse
 // @Failure 403 {object} ExcuseForbiddenResponse
 // @Failure 404 {object} ExcuseNotFoundResponse
 // @Failure 500 {object} ExcuseUpdateErrorResponse
@@ -294,6 +298,7 @@ func (h *ExcuseHandler) PatchExcuse(c *gin.Context) {
 // @Param id path string true "Excuse ID"
 // @Success 204 "No Content"
 // @Failure 400 {object} ExcuseValidationErrorResponse "Invalid Excuse ID"
+// @Failure 401 {object} ExcuseUnauthorizedResponse
 // @Failure 404 {object} ExcuseNotFoundResponse
 // @Failure 500 {object} ExcuseDeleteErrorResponse
 // @Router /excuses/{id} [delete]

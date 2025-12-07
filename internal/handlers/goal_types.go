@@ -56,6 +56,10 @@ type GoalDeleteErrorResponse struct {
 	Error string `json:"error" example:"目標の削除に失敗しました"`
 }
 
+type GoalUnauthorizedResponse struct {
+	Error string `json:"error" example:"認証されていません"`
+}
+
 type GoalValidationErrorResponse struct {
 	Error string `json:"error" example:"入力内容が正しくありません"`
 }

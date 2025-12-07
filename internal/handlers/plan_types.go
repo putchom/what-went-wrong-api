@@ -16,6 +16,10 @@ type PostMePlanResponse struct {
 	Entitlements services.Entitlements `json:"entitlements"`
 }
 
+type PlanUnauthorizedResponse struct {
+	Error string `json:"error" example:"認証されていません"`
+}
+
 type PlanFetchErrorResponse struct {
 	Error string `json:"error" example:"プランの取得に失敗しました"`
 }

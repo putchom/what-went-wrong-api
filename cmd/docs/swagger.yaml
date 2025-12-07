@@ -1,5 +1,11 @@
 basePath: /api/v1
 definitions:
+  handlers.AiUnauthorizedResponse:
+    properties:
+      error:
+        example: 認証されていません
+        type: string
+    type: object
   handlers.CreateAiExcuseRequest:
     properties:
       context:
@@ -141,6 +147,12 @@ definitions:
           type: string
         type: array
     type: object
+  handlers.ExcuseUnauthorizedResponse:
+    properties:
+      error:
+        example: 認証されていません
+        type: string
+    type: object
   handlers.ExcuseUpdateErrorResponse:
     properties:
       error:
@@ -237,6 +249,12 @@ definitions:
       updatedAt:
         type: string
     type: object
+  handlers.GoalUnauthorizedResponse:
+    properties:
+      error:
+        example: 認証されていません
+        type: string
+    type: object
   handlers.GoalUpdateErrorResponse:
     properties:
       error:
@@ -259,6 +277,12 @@ definitions:
     properties:
       error:
         example: プランの取得に失敗しました
+        type: string
+    type: object
+  handlers.PlanUnauthorizedResponse:
+    properties:
+      error:
+        example: 認証されていません
         type: string
     type: object
   handlers.PlanUpdateErrorResponse:
@@ -305,6 +329,12 @@ definitions:
     properties:
       error:
         example: テンプレートが見つかりません
+        type: string
+    type: object
+  handlers.TemplateUnauthorizedResponse:
+    properties:
+      error:
+        example: 認証されていません
         type: string
     type: object
   handlers.UpdateExcuseRequest:
@@ -377,6 +407,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/handlers.ValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.AiUnauthorizedResponse'
         "403":
           description: Forbidden if not premium
           schema:
@@ -426,6 +460,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/handlers.ExcuseTemplateResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.TemplateUnauthorizedResponse'
         "404":
           description: Not Found
           schema:
@@ -452,6 +490,10 @@ paths:
           description: Invalid Excuse ID
           schema:
             $ref: '#/definitions/handlers.ExcuseValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ExcuseUnauthorizedResponse'
         "404":
           description: Not Found
           schema:
@@ -489,6 +531,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/handlers.ExcuseValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ExcuseUnauthorizedResponse'
         "403":
           description: Forbidden
           schema:
@@ -519,7 +565,7 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/handlers.GoalFetchErrorResponse'
+            $ref: '#/definitions/handlers.GoalUnauthorizedResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -549,6 +595,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/handlers.GoalValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.GoalUnauthorizedResponse'
         "403":
           description: Forbidden if max goals reached
           schema:
@@ -591,6 +641,10 @@ paths:
           description: Invalid Goal ID
           schema:
             $ref: '#/definitions/handlers.ExcuseValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ExcuseUnauthorizedResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -625,6 +679,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/handlers.ExcuseValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ExcuseUnauthorizedResponse'
         "403":
           description: Forbidden
           schema:
@@ -657,6 +715,10 @@ paths:
           description: Invalid Goal ID
           schema:
             $ref: '#/definitions/handlers.ExcuseValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ExcuseUnauthorizedResponse'
         "404":
           description: Not Found
           schema:
@@ -683,6 +745,10 @@ paths:
       responses:
         "204":
           description: No Content
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.GoalUnauthorizedResponse'
         "404":
           description: Not Found
           schema:
@@ -720,6 +786,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/handlers.GoalValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.GoalUnauthorizedResponse'
         "404":
           description: Not Found
           schema:
@@ -743,6 +813,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/handlers.GetMePlanResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.PlanUnauthorizedResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -772,6 +846,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/handlers.PlanValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.PlanUnauthorizedResponse'
         "500":
           description: Internal Server Error
           schema:

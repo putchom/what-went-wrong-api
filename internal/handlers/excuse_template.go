@@ -83,6 +83,7 @@ func (h *ExcuseTemplateHandler) GetExcuseTemplates(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Template ID"
 // @Success 200 {object} ExcuseTemplateResponse
+// @Failure 401 {object} TemplateUnauthorizedResponse
 // @Failure 404 {object} TemplateNotFoundResponse
 // @Failure 500 {object} TemplateInternalErrorResponse
 // @Router /excuse-templates/{id} [get]

@@ -15,6 +15,10 @@ type GetExcuseTemplatesResponse struct {
 	Templates []ExcuseTemplateResponse `json:"templates"`
 }
 
+type TemplateUnauthorizedResponse struct {
+	Error string `json:"error" example:"認証されていません"`
+}
+
 type TemplateInternalErrorResponse struct {
 	Error string `json:"error" example:"テンプレートの取得に失敗しました"`
 }

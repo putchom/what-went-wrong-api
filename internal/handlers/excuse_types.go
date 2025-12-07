@@ -51,6 +51,10 @@ type ExcuseDeleteErrorResponse struct {
 	Error string `json:"error" example:"言い訳の削除に失敗しました"`
 }
 
+type ExcuseUnauthorizedResponse struct {
+	Error string `json:"error" example:"認証されていません"`
+}
+
 type ExcuseForbiddenResponse struct {
 	Error string `json:"error" example:"プレミアムテンプレートを利用するにはプレミアムプランが必要です"`
 }

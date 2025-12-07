@@ -26,6 +26,7 @@ func NewAIHandler(aiService services.AIService) *AIHandler {
 // @Param request body CreateAiExcuseRequest true "Request body"
 // @Success 200 {object} CreateAiExcuseResponse
 // @Failure 400 {object} ValidationErrorResponse
+// @Failure 401 {object} AiUnauthorizedResponse
 // @Failure 403 {object} PremiumRequiredResponse "Forbidden if not premium"
 // @Failure 500 {object} InternalErrorResponse
 // @Router /ai-excuse [post]
