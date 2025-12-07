@@ -10,24 +10,24 @@ import (
 	"gorm.io/gorm"
 )
 
-type TemplateHandler struct {
+type ExcuseTemplateHandler struct {
 	db *gorm.DB
 }
 
-func NewTemplateHandler(db *gorm.DB) *TemplateHandler {
-	return &TemplateHandler{db: db}
+func NewExcuseTemplateHandler(db *gorm.DB) *ExcuseTemplateHandler {
+	return &ExcuseTemplateHandler{db: db}
 }
 
 // GetTemplates godoc
 // @Summary List excuse templates
 // @Description Get excuse templates. Can filter by pack_id. Premium users can access all. Free users restricted from premium packs.
-// @Tags templates
+// @Tags excuse-templates
 // @Accept json
 // @Produce json
 // @Param pack_id query string false "Pack ID to filter"
-// @Success 200 {object} GetTemplatesResponse
+// @Success 200 {object} GetExcuseTemplatesResponse
 // @Router /excuse-templates [get]
-func (h *TemplateHandler) GetTemplates(c *gin.Context) {
+func (h *ExcuseTemplateHandler) GetExcuseTemplates(c *gin.Context) {
 	packID := c.Query("pack_id")
 
 	// Entitlement check
@@ -63,7 +63,7 @@ func (h *TemplateHandler) GetTemplates(c *gin.Context) {
 		return
 	}
 
-	res := GetTemplatesResponse{Templates: make([]ExcuseTemplateResponse, len(templates))}
+	res := GetExcuseTemplatesResponse{Templates: make([]ExcuseTemplateResponse, len(templates))}
 	for i, t := range templates {
 		// Assuming Tags is stored as JSON or string array in DB, GORM handles it if configured
 		// In `models/excuse.go`, tags is `type:text[]`. Gorm's postgres driver handles `lib/pq` array?
@@ -84,15 +84,15 @@ func (h *TemplateHandler) GetTemplates(c *gin.Context) {
 	c.JSON(http.StatusOK, res)
 }
 
-// GetTemplate godoc
+// GetExcuseTemplate godoc
 // @Summary Get template details
-// @Tags templates
+// @Tags excuse-templates
 // @Accept json
 // @Produce json
 // @Param id path string true "Template ID"
 // @Success 200 {object} ExcuseTemplateResponse
 // @Router /excuse-templates/{id} [get]
-func (h *TemplateHandler) GetTemplate(c *gin.Context) {
+func (h *ExcuseTemplateHandler) GetExcuseTemplate(c *gin.Context) {
 	id := c.Param("id")
 
 	entitlementsInterface, exists := c.Get("entitlements")

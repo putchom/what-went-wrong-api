@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetTemplates(t *testing.T) {
+func TestGetExcuseTemplates(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
 	t.Run("FreeUser_FilterPremium", func(t *testing.T) {
@@ -24,7 +24,7 @@ func TestGetTemplates(t *testing.T) {
 		// Ensure Migration for ExcuseTemplate
 		db.AutoMigrate(&models.ExcuseTemplate{})
 
-		handler := NewTemplateHandler(db)
+		handler := NewExcuseTemplateHandler(db)
 
 		// Seed templates
 		freeTmpl := models.ExcuseTemplate{
@@ -52,10 +52,10 @@ func TestGetTemplates(t *testing.T) {
 		c.Set("entitlements", services.Entitlements{CanUsePremiumTemplates: false})
 		c.Request, _ = http.NewRequest("GET", "/excuse-templates", nil)
 
-		handler.GetTemplates(c)
+		handler.GetExcuseTemplates(c)
 
 		assert.Equal(t, http.StatusOK, w.Code)
-		var resp GetTemplatesResponse
+		var resp GetExcuseTemplatesResponse
 		json.Unmarshal(w.Body.Bytes(), &resp)
 
 		// Should only see free template
@@ -68,7 +68,7 @@ func TestGetTemplates(t *testing.T) {
 		db, cleanup := SetupTestDB(t)
 		defer cleanup()
 		db.AutoMigrate(&models.ExcuseTemplate{})
-		handler := NewTemplateHandler(db)
+		handler := NewExcuseTemplateHandler(db)
 
 		// Seed templates
 		freeTmpl := models.ExcuseTemplate{ID: "t1", PackID: "pack-1", IsPremium: false}
@@ -84,10 +84,10 @@ func TestGetTemplates(t *testing.T) {
 		c.Set("entitlements", services.Entitlements{CanUsePremiumTemplates: true})
 		c.Request, _ = http.NewRequest("GET", "/excuse-templates", nil)
 
-		handler.GetTemplates(c)
+		handler.GetExcuseTemplates(c)
 
 		assert.Equal(t, http.StatusOK, w.Code)
-		var resp GetTemplatesResponse
+		var resp GetExcuseTemplatesResponse
 		json.Unmarshal(w.Body.Bytes(), &resp)
 
 		assert.Len(t, resp.Templates, 2)
@@ -97,7 +97,7 @@ func TestGetTemplates(t *testing.T) {
 		db, cleanup := SetupTestDB(t)
 		defer cleanup()
 		db.AutoMigrate(&models.ExcuseTemplate{})
-		handler := NewTemplateHandler(db)
+		handler := NewExcuseTemplateHandler(db)
 
 		t1 := models.ExcuseTemplate{ID: "t1", PackID: "pack-1"}
 		t2 := models.ExcuseTemplate{ID: "t2", PackID: "pack-2"}
@@ -112,10 +112,10 @@ func TestGetTemplates(t *testing.T) {
 		// Filter query
 		c.Request, _ = http.NewRequest("GET", "/excuse-templates?pack_id=pack-1", nil)
 
-		handler.GetTemplates(c)
+		handler.GetExcuseTemplates(c)
 
 		assert.Equal(t, http.StatusOK, w.Code)
-		var resp GetTemplatesResponse
+		var resp GetExcuseTemplatesResponse
 		json.Unmarshal(w.Body.Bytes(), &resp)
 
 		assert.Len(t, resp.Templates, 1)

@@ -11,6 +11,6 @@ type ExcuseTemplateResponse struct {
 	CreatedAt  time.Time `json:"createdAt"`
 }
 
-type GetTemplatesResponse struct {
+type GetExcuseTemplatesResponse struct {
 	Templates []ExcuseTemplateResponse `json:"templates"`
 }
