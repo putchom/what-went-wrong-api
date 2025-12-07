@@ -1,25 +1,179 @@
 basePath: /api/v1
 definitions:
-  handlers.ErrorResponse:
+  handlers.CreateAiExcuseRequest:
     properties:
-      error:
-        example: missing or invalid Authorization header
+      context:
         type: string
+      date:
+        type: string
+      goalId:
+        type: string
+      tone:
+        type: string
+    required:
+    - date
+    - goalId
     type: object
-  models.User:
+  handlers.CreateAiExcuseResponse:
     properties:
-      auth0ID:
+      candidates:
+        items:
+          type: string
+        type: array
+    type: object
+  handlers.CreateExcuseRequest:
+    properties:
+      date:
+        description: YYYY-MM-DD
         type: string
+      excuseText:
+        maxLength: 500
+        type: string
+      templateId:
+        type: string
+    required:
+    - date
+    - excuseText
+    type: object
+  handlers.CreateGoalRequest:
+    properties:
+      notificationEnabled:
+        type: boolean
+      notificationTime:
+        type: string
+      title:
+        maxLength: 200
+        type: string
+    required:
+    - title
+    type: object
+  handlers.CreateGoalResponse:
+    properties:
+      goal:
+        $ref: '#/definitions/handlers.GoalResponse'
+    type: object
+  handlers.ExcuseResponse:
+    properties:
       createdAt:
         type: string
-      email:
+      date:
+        type: string
+      excuseText:
+        type: string
+      goalId:
         type: string
       id:
         type: string
-      name:
+      templateId:
         type: string
       updatedAt:
         type: string
+    type: object
+  handlers.ExcuseTemplateResponse:
+    properties:
+      createdAt:
+        type: string
+      excuseText:
+        type: string
+      id:
+        type: string
+      isPremium:
+        type: boolean
+      packId:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+    type: object
+  handlers.GetExcuseTemplatesResponse:
+    properties:
+      templates:
+        items:
+          $ref: '#/definitions/handlers.ExcuseTemplateResponse'
+        type: array
+    type: object
+  handlers.GetExcusesResponse:
+    properties:
+      excuses:
+        items:
+          $ref: '#/definitions/handlers.ExcuseResponse'
+        type: array
+    type: object
+  handlers.GetGoalsResponse:
+    properties:
+      goals:
+        items:
+          $ref: '#/definitions/handlers.GoalResponse'
+        type: array
+    type: object
+  handlers.GetMePlanResponse:
+    properties:
+      entitlements:
+        $ref: '#/definitions/services.Entitlements'
+      plan:
+        type: string
+    type: object
+  handlers.GoalResponse:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      notificationEnabled:
+        type: boolean
+      notificationTime:
+        type: string
+      order:
+        type: integer
+      title:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  handlers.PostMePlanRequest:
+    properties:
+      plan:
+        type: string
+    required:
+    - plan
+    type: object
+  handlers.PostMePlanResponse:
+    properties:
+      entitlements:
+        $ref: '#/definitions/services.Entitlements'
+      plan:
+        type: string
+    type: object
+  handlers.UpdateExcuseRequest:
+    properties:
+      excuseText:
+        maxLength: 500
+        type: string
+      templateId:
+        type: string
+    type: object
+  handlers.UpdateGoalRequest:
+    properties:
+      notificationEnabled:
+        type: boolean
+      notificationTime:
+        type: string
+      title:
+        maxLength: 200
+        type: string
+    type: object
+  services.Entitlements:
+    properties:
+      canUseAiExcuse:
+        type: boolean
+      canUsePremiumTemplates:
+        type: boolean
+      logRetentionDays:
+        description: nil = unlimited
+        type: integer
+      maxGoals:
+        type: integer
     type: object
 info:
   contact: {}
@@ -27,29 +181,323 @@ info:
   title: What Went Wrong API
   version: "1.0"
 paths:
-  /users:
-    get:
+  /ai-excuse:
+    post:
       consumes:
       - application/json
-      description: Get a list of all users from database. Requires Bearer token authentication.
+      description: Generate excuse candidates using AI. Requires premium plan.
+      parameters:
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateAiExcuseRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/models.User'
-            type: array
-        "401":
-          description: Unauthorized
+            $ref: '#/definitions/handlers.CreateAiExcuseResponse'
+        "400":
+          description: Bad Request
           schema:
-            $ref: '#/definitions/handlers.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: Get all users
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden if not premium
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Generate AI excuses
       tags:
-      - users
+      - ai
+  /excuse-templates:
+    get:
+      consumes:
+      - application/json
+      description: Get excuse templates. Can filter by pack_id. Premium users can
+        access all. Free users restricted from premium packs.
+      parameters:
+      - description: Pack ID to filter
+        in: query
+        name: pack_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.GetExcuseTemplatesResponse'
+      summary: List excuse templates
+      tags:
+      - excuse-templates
+  /excuse-templates/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Template ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.ExcuseTemplateResponse'
+      summary: Get template details
+      tags:
+      - excuse-templates
+  /excuses/{id}:
+    delete:
+      parameters:
+      - description: Excuse ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+      summary: Delete an excuse
+      tags:
+      - excuses
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Excuse ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateExcuseRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.ExcuseResponse'
+      summary: Update an excuse
+      tags:
+      - excuses
+  /goals:
+    get:
+      consumes:
+      - application/json
+      description: Get all goals for the current user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.GetGoalsResponse'
+      summary: List goals
+      tags:
+      - goals
+    post:
+      consumes:
+      - application/json
+      description: Create a new goal. Checks for plan limits.
+      parameters:
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateGoalRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handlers.CreateGoalResponse'
+        "403":
+          description: Forbidden if max goals reached
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create goal
+      tags:
+      - goals
+  /goals/{goal_id}/excuses:
+    get:
+      consumes:
+      - application/json
+      description: List excuses, filters by retention days if strictly limited by
+        entitlement.
+      parameters:
+      - description: Goal ID
+        in: path
+        name: goal_id
+        required: true
+        type: string
+      - description: From Date (YYYY-MM-DD)
+        in: query
+        name: from
+        type: string
+      - description: To Date (YYYY-MM-DD)
+        in: query
+        name: to
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.GetExcusesResponse'
+      summary: List excuses for a goal
+      tags:
+      - excuses
+    post:
+      consumes:
+      - application/json
+      description: Upsert excuse for a date. Checks entitlement if using premium template.
+      parameters:
+      - description: Goal ID
+        in: path
+        name: goal_id
+        required: true
+        type: string
+      - description: Excuse Data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateExcuseRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handlers.ExcuseResponse'
+      summary: Create or update an excuse
+      tags:
+      - excuses
+  /goals/{goal_id}/excuses/today:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Goal ID
+        in: path
+        name: goal_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.ExcuseResponse'
+      summary: Get today's excuse for a goal
+      tags:
+      - excuses
+  /goals/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Goal ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      summary: Delete goal
+      tags:
+      - goals
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Goal ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateGoalRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.CreateGoalResponse'
+      summary: Update goal
+      tags:
+      - goals
+  /me/plan:
+    get:
+      consumes:
+      - application/json
+      description: Returns the user's current subscription plan and their active entitlements.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.GetMePlanResponse'
+      summary: Get current user plan and entitlements
+      tags:
+      - plan
+    post:
+      consumes:
+      - application/json
+      description: Updates the user's subscription plan (e.g., from 'free' to 'premium').
+      parameters:
+      - description: Request body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.PostMePlanRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.PostMePlanResponse'
+      summary: Update user plan
+      tags:
+      - plan
 securityDefinitions:
   BearerAuth:
     in: header

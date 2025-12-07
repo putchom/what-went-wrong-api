@@ -8,14 +8,9 @@
     },
     "basePath": "/api/v1",
     "paths": {
-        "/users": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Get a list of all users from database. Requires Bearer token authentication.",
+        "/ai-excuse": {
+            "post": {
+                "description": "Generate excuse candidates using AI. Requires premium plan.",
                 "consumes": [
                     "application/json"
                 ],
@@ -23,23 +18,473 @@
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "ai"
                 ],
-                "summary": "Get all users",
+                "summary": "Generate AI excuses",
+                "parameters": [
+                    {
+                        "description": "Request body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.CreateAiExcuseRequest"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.User"
+                            "$ref": "#/definitions/handlers.CreateAiExcuseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
                             }
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
+                    "403": {
+                        "description": "Forbidden if not premium",
                         "schema": {
-                            "$ref": "#/definitions/handlers.ErrorResponse"
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/excuse-templates": {
+            "get": {
+                "description": "Get excuse templates. Can filter by pack_id. Premium users can access all. Free users restricted from premium packs.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "excuse-templates"
+                ],
+                "summary": "List excuse templates",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Pack ID to filter",
+                        "name": "pack_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GetExcuseTemplatesResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/excuse-templates/{id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "excuse-templates"
+                ],
+                "summary": "Get template details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Template ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseTemplateResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/excuses/{id}": {
+            "delete": {
+                "tags": [
+                    "excuses"
+                ],
+                "summary": "Delete an excuse",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Excuse ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            },
+            "patch": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "excuses"
+                ],
+                "summary": "Update an excuse",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Excuse ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.UpdateExcuseRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/goals": {
+            "get": {
+                "description": "Get all goals for the current user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "goals"
+                ],
+                "summary": "List goals",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GetGoalsResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new goal. Checks for plan limits.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "goals"
+                ],
+                "summary": "Create goal",
+                "parameters": [
+                    {
+                        "description": "Request body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.CreateGoalRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.CreateGoalResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden if max goals reached",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/goals/{goal_id}/excuses": {
+            "get": {
+                "description": "List excuses, filters by retention days if strictly limited by entitlement.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "excuses"
+                ],
+                "summary": "List excuses for a goal",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Goal ID",
+                        "name": "goal_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "From Date (YYYY-MM-DD)",
+                        "name": "from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "To Date (YYYY-MM-DD)",
+                        "name": "to",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GetExcusesResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Upsert excuse for a date. Checks entitlement if using premium template.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "excuses"
+                ],
+                "summary": "Create or update an excuse",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Goal ID",
+                        "name": "goal_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Excuse Data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.CreateExcuseRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/goals/{goal_id}/excuses/today": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "excuses"
+                ],
+                "summary": "Get today's excuse for a goal",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Goal ID",
+                        "name": "goal_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ExcuseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/goals/{id}": {
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "goals"
+                ],
+                "summary": "Delete goal",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Goal ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            },
+            "patch": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "goals"
+                ],
+                "summary": "Update goal",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Goal ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Request body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.UpdateGoalRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.CreateGoalResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/me/plan": {
+            "get": {
+                "description": "Returns the user's current subscription plan and their active entitlements.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "plan"
+                ],
+                "summary": "Get current user plan and entitlements",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.GetMePlanResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Updates the user's subscription plan (e.g., from 'free' to 'premium').",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "plan"
+                ],
+                "summary": "Update user plan",
+                "parameters": [
+                    {
+                        "description": "Request body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.PostMePlanRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.PostMePlanResponse"
                         }
                     }
                 }
@@ -47,35 +492,270 @@
         }
     },
     "definitions": {
-        "handlers.ErrorResponse": {
+        "handlers.CreateAiExcuseRequest": {
             "type": "object",
+            "required": [
+                "date",
+                "goalId"
+            ],
             "properties": {
-                "error": {
-                    "type": "string",
-                    "example": "missing or invalid Authorization header"
+                "context": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "goalId": {
+                    "type": "string"
+                },
+                "tone": {
+                    "type": "string"
                 }
             }
         },
-        "models.User": {
+        "handlers.CreateAiExcuseResponse": {
             "type": "object",
             "properties": {
-                "auth0ID": {
+                "candidates": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "handlers.CreateExcuseRequest": {
+            "type": "object",
+            "required": [
+                "date",
+                "excuseText"
+            ],
+            "properties": {
+                "date": {
+                    "description": "YYYY-MM-DD",
                     "type": "string"
                 },
+                "excuseText": {
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "templateId": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.CreateGoalRequest": {
+            "type": "object",
+            "required": [
+                "title"
+            ],
+            "properties": {
+                "notificationEnabled": {
+                    "type": "boolean"
+                },
+                "notificationTime": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 200
+                }
+            }
+        },
+        "handlers.CreateGoalResponse": {
+            "type": "object",
+            "properties": {
+                "goal": {
+                    "$ref": "#/definitions/handlers.GoalResponse"
+                }
+            }
+        },
+        "handlers.ExcuseResponse": {
+            "type": "object",
+            "properties": {
                 "createdAt": {
                     "type": "string"
                 },
-                "email": {
+                "date": {
+                    "type": "string"
+                },
+                "excuseText": {
+                    "type": "string"
+                },
+                "goalId": {
                     "type": "string"
                 },
                 "id": {
                     "type": "string"
                 },
-                "name": {
+                "templateId": {
                     "type": "string"
                 },
                 "updatedAt": {
                     "type": "string"
+                }
+            }
+        },
+        "handlers.ExcuseTemplateResponse": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "excuseText": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isPremium": {
+                    "type": "boolean"
+                },
+                "packId": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "handlers.GetExcuseTemplatesResponse": {
+            "type": "object",
+            "properties": {
+                "templates": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handlers.ExcuseTemplateResponse"
+                    }
+                }
+            }
+        },
+        "handlers.GetExcusesResponse": {
+            "type": "object",
+            "properties": {
+                "excuses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handlers.ExcuseResponse"
+                    }
+                }
+            }
+        },
+        "handlers.GetGoalsResponse": {
+            "type": "object",
+            "properties": {
+                "goals": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handlers.GoalResponse"
+                    }
+                }
+            }
+        },
+        "handlers.GetMePlanResponse": {
+            "type": "object",
+            "properties": {
+                "entitlements": {
+                    "$ref": "#/definitions/services.Entitlements"
+                },
+                "plan": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.GoalResponse": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "notificationEnabled": {
+                    "type": "boolean"
+                },
+                "notificationTime": {
+                    "type": "string"
+                },
+                "order": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.PostMePlanRequest": {
+            "type": "object",
+            "required": [
+                "plan"
+            ],
+            "properties": {
+                "plan": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.PostMePlanResponse": {
+            "type": "object",
+            "properties": {
+                "entitlements": {
+                    "$ref": "#/definitions/services.Entitlements"
+                },
+                "plan": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.UpdateExcuseRequest": {
+            "type": "object",
+            "properties": {
+                "excuseText": {
+                    "type": "string",
+                    "maxLength": 500
+                },
+                "templateId": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.UpdateGoalRequest": {
+            "type": "object",
+            "properties": {
+                "notificationEnabled": {
+                    "type": "boolean"
+                },
+                "notificationTime": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 200
+                }
+            }
+        },
+        "services.Entitlements": {
+            "type": "object",
+            "properties": {
+                "canUseAiExcuse": {
+                    "type": "boolean"
+                },
+                "canUsePremiumTemplates": {
+                    "type": "boolean"
+                },
+                "logRetentionDays": {
+                    "description": "nil = unlimited",
+                    "type": "integer"
+                },
+                "maxGoals": {
+                    "type": "integer"
                 }
             }
         }
