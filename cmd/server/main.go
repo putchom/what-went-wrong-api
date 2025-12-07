@@ -79,6 +79,7 @@ func main() {
 	aiService := services.NewMockAIService()
 	aiHandler := handlers.NewAIHandler(aiService)
 	goalHandler := handlers.NewGoalHandler(db)
+	templateHandler := handlers.NewTemplateHandler(db)
 
 	// Middleware の初期化
 	entitlementMiddleware := middleware.NewEntitlementMiddleware(entitlementService)
@@ -99,6 +100,8 @@ func main() {
 		v1.POST("/goals", goalHandler.PostGoals)
 		v1.PATCH("/goals/:id", goalHandler.PatchGoal)
 		v1.DELETE("/goals/:id", goalHandler.DeleteGoal)
+		v1.GET("/templates", templateHandler.GetTemplates)
+		v1.GET("/templates/:id", templateHandler.GetTemplate)
 	}
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	r.Run(":8080")
