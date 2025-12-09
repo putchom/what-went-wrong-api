@@ -26,6 +26,7 @@ func NewExcuseTemplateHandler(db *gorm.DB) *ExcuseTemplateHandler {
 // @Produce json
 // @Param pack_id query string false "Pack ID to filter"
 // @Success 200 {object} GetExcuseTemplatesResponse
+// @Security BearerAuth
 // @Router /excuse-templates [get]
 func (h *ExcuseTemplateHandler) GetExcuseTemplates(c *gin.Context) {
 	packID := c.Query("pack_id")
@@ -86,6 +87,7 @@ func (h *ExcuseTemplateHandler) GetExcuseTemplates(c *gin.Context) {
 // @Failure 401 {object} TemplateUnauthorizedResponse
 // @Failure 404 {object} TemplateNotFoundResponse
 // @Failure 500 {object} TemplateInternalErrorResponse
+// @Security BearerAuth
 // @Router /excuse-templates/{id} [get]
 func (h *ExcuseTemplateHandler) GetExcuseTemplate(c *gin.Context) {
 	id := c.Param("id")

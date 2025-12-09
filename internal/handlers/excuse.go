@@ -33,6 +33,7 @@ func NewExcuseHandler(db *gorm.DB) *ExcuseHandler {
 // @Failure 400 {object} ExcuseValidationErrorResponse "Invalid Goal ID"
 // @Failure 401 {object} ExcuseUnauthorizedResponse
 // @Failure 500 {object} ExcuseFetchErrorResponse
+// @Security BearerAuth
 // @Router /goals/{goal_id}/excuses [get]
 func (h *ExcuseHandler) GetExcuses(c *gin.Context) {
 	userIdStr, exists := c.Get("userID")
@@ -108,6 +109,7 @@ func (h *ExcuseHandler) GetExcuses(c *gin.Context) {
 // @Failure 401 {object} ExcuseUnauthorizedResponse
 // @Failure 404 {object} ExcuseNotFoundResponse
 // @Failure 500 {object} ExcuseFetchErrorResponse
+// @Security BearerAuth
 // @Router /goals/{goal_id}/excuses/today [get]
 func (h *ExcuseHandler) GetExcuseToday(c *gin.Context) {
 	userIdStr, exists := c.Get("userID")
@@ -159,6 +161,7 @@ func (h *ExcuseHandler) GetExcuseToday(c *gin.Context) {
 // @Failure 401 {object} ExcuseUnauthorizedResponse
 // @Failure 403 {object} ExcuseForbiddenResponse
 // @Failure 500 {object} ExcuseCreateErrorResponse
+// @Security BearerAuth
 // @Router /goals/{goal_id}/excuses [post]
 func (h *ExcuseHandler) PostExcuse(c *gin.Context) {
 	userIdStr, _ := c.Get("userID")
@@ -239,6 +242,7 @@ func (h *ExcuseHandler) PostExcuse(c *gin.Context) {
 // @Failure 403 {object} ExcuseForbiddenResponse
 // @Failure 404 {object} ExcuseNotFoundResponse
 // @Failure 500 {object} ExcuseUpdateErrorResponse
+// @Security BearerAuth
 // @Router /excuses/{id} [patch]
 func (h *ExcuseHandler) PatchExcuse(c *gin.Context) {
 	idStr := c.Param("id")
@@ -301,6 +305,7 @@ func (h *ExcuseHandler) PatchExcuse(c *gin.Context) {
 // @Failure 401 {object} ExcuseUnauthorizedResponse
 // @Failure 404 {object} ExcuseNotFoundResponse
 // @Failure 500 {object} ExcuseDeleteErrorResponse
+// @Security BearerAuth
 // @Router /excuses/{id} [delete]
 func (h *ExcuseHandler) DeleteExcuse(c *gin.Context) {
 	idStr := c.Param("id")

@@ -17,6 +17,11 @@ const docTemplate = `{
     "paths": {
         "/ai-excuse": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Generate excuse candidates using AI. Requires premium plan.",
                 "consumes": [
                     "application/json"
@@ -75,6 +80,11 @@ const docTemplate = `{
         },
         "/excuse-templates": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get excuse templates. Can filter by pack_id. Premium users can access all. Free users restricted from premium packs.",
                 "consumes": [
                     "application/json"
@@ -106,6 +116,11 @@ const docTemplate = `{
         },
         "/excuse-templates/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -155,6 +170,11 @@ const docTemplate = `{
         },
         "/excuses/{id}": {
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "tags": [
                     "excuses"
                 ],
@@ -199,6 +219,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -269,6 +294,11 @@ const docTemplate = `{
         },
         "/goals": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get all goals for the current user",
                 "consumes": [
                     "application/json"
@@ -302,6 +332,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new goal. Checks for plan limits.",
                 "consumes": [
                     "application/json"
@@ -360,6 +395,11 @@ const docTemplate = `{
         },
         "/goals/{goal_id}/excuses": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "List excuses, filters by retention days if strictly limited by entitlement.",
                 "consumes": [
                     "application/json"
@@ -420,6 +460,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Upsert excuse for a date. Checks entitlement if using premium template.",
                 "consumes": [
                     "application/json"
@@ -485,6 +530,11 @@ const docTemplate = `{
         },
         "/goals/{goal_id}/excuses/today": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -540,6 +590,11 @@ const docTemplate = `{
         },
         "/goals/{id}": {
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -584,6 +639,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -648,6 +708,11 @@ const docTemplate = `{
         },
         "/me/plan": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Returns the user's current subscription plan and their active entitlements.",
                 "consumes": [
                     "application/json"
@@ -681,6 +746,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Updates the user's subscription plan (e.g., from 'free' to 'premium').",
                 "consumes": [
                     "application/json"

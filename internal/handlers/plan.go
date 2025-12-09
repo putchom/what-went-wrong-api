@@ -31,6 +31,7 @@ func NewPlanHandler(entitlementService EntitlementManager) *PlanHandler {
 // @Success 200 {object} GetMePlanResponse
 // @Failure 401 {object} PlanUnauthorizedResponse
 // @Failure 500 {object} PlanFetchErrorResponse
+// @Security BearerAuth
 // @Router /me/plan [get]
 func (h *PlanHandler) GetMePlan(c *gin.Context) {
 	userIDStr, exists := c.Get("userID")
@@ -65,6 +66,7 @@ func (h *PlanHandler) GetMePlan(c *gin.Context) {
 // @Failure 400 {object} PlanValidationErrorResponse
 // @Failure 401 {object} PlanUnauthorizedResponse
 // @Failure 500 {object} PlanUpdateErrorResponse
+// @Security BearerAuth
 // @Router /me/plan [post]
 func (h *PlanHandler) PostMePlan(c *gin.Context) {
 	userIDStr, exists := c.Get("userID")

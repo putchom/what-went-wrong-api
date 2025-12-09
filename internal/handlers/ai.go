@@ -29,6 +29,7 @@ func NewAIHandler(aiService services.AIService) *AIHandler {
 // @Failure 401 {object} AiUnauthorizedResponse
 // @Failure 403 {object} PremiumRequiredResponse "Forbidden if not premium"
 // @Failure 500 {object} InternalErrorResponse
+// @Security BearerAuth
 // @Router /ai-excuse [post]
 func (h *AIHandler) PostAiExcuse(c *gin.Context) {
 	// UserID extraction kept if needed for future logic (e.g. logging), otherwise remove or underscore
