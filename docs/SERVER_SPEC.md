@@ -122,15 +122,26 @@ Goal作成。
 }
 ```
 
-### 3.3 PATCH /goals/{goalId}
+### 3.3 GET /goals/{goalId}
+指定したGoalの詳細を取得。
+
+#### レスポンス 200
+
+```json
+{
+  "goal": { ...Goal }
+}
+```
+
+### 3.4 PATCH /goals/{goalId}
 Goal更新（タイトル、通知等）。
 エンタイトルメントに特別な制限なし。
 
-### 3.4 DELETE /goals/{goalId}
+### 3.5 DELETE /goals/{goalId}
 Goal削除＋紐づくExcuseEntry削除。
 エンタイトルメントに特別な制限なし。
 
-### 3.5 GET /excuse-templates
+### 3.6 GET /excuse-templates
 
 #### クエリパラメータ（任意）
 - `packId`： `core` / `pack.surreal` / `pack.sf` 等
@@ -156,7 +167,7 @@ Goal削除＋紐づくExcuseEntry削除。
 }
 ```
 
-### 3.6 GET /goals/{goalId}/excuses
+### 3.7 GET /goals/{goalId}/excuses
 
 #### 役割
 
@@ -190,14 +201,14 @@ Goalごとの過去ログ取得。
 }
 ```
 
-### 3.7 GET /goals/{goalId}/excuses/today
+### 3.8 GET /goals/{goalId}/excuses/today
 
 - (goalId, today) の ExcuseEntryを1件返す
 - なければ 404 ExcuseEntryNotFoundForToday
 
 （課金制御は特になし）
 
-### 3.8 POST /goals/{goalId}/excuses
+### 3.9 POST /goals/{goalId}/excuses
 
 #### 今日を含む任意の日付の言い訳保存（upsert）。
 
@@ -228,17 +239,17 @@ Goalごとの過去ログ取得。
 }
 ```
 
-### 3.9 PATCH /excuses/{excuseId}
+### 3.10 PATCH /excuses/{excuseId}
 
 - `excuseText` / `templateId` を更新
 - `templateId` 変更時は利用可能テンプレかチェック
 
-### 3.10 DELETE /excuses/{excuseId}
+### 3.11 DELETE /excuses/{excuseId}
 
 - ExcuseEntry削除 → その日が「できた扱い」に戻る
 - 課金制御なし
 
-### 3.11 GET /me/plan
+### 3.12 GET /me/plan
 現在のプランと権限を返す。
 
 ```json
@@ -253,7 +264,7 @@ Goalごとの過去ログ取得。
 }
 ```
 
-### 3.12 POST /me/plan
+### 3.13 POST /me/plan
 
 #### 概要
 
@@ -281,7 +292,7 @@ Goalごとの過去ログ取得。
 }
 ```
 
-### 3.13 POST /ai-excuse
+### 3.14 POST /ai-excuse
 
 #### 概要
 

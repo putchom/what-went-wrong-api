@@ -104,6 +104,72 @@ func TestGetGoals(t *testing.T) {
 	})
 }
 
+func TestGetGoal(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	t.Run("Success", func(t *testing.T) {
+		db, cleanup := SetupTestDB(t)
+		defer cleanup()
+		handler := NewGoalHandler(db)
+
+		userID := "auth0|test"
+		goal := models.Goal{UserID: userID, Title: "Fetch Me"}
+		db.Create(&goal)
+
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Set("userID", userID)
+		c.Params = gin.Params{{Key: "id", Value: goal.ID.String()}}
+
+		handler.GetGoal(c)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+		var resp CreateGoalResponse
+		json.Unmarshal(w.Body.Bytes(), &resp)
+		assert.Equal(t, "Fetch Me", resp.Goal.Title)
+		assert.Equal(t, goal.ID.String(), resp.Goal.ID)
+	})
+
+	t.Run("NotFound", func(t *testing.T) {
+		db, cleanup := SetupTestDB(t)
+		defer cleanup()
+		handler := NewGoalHandler(db)
+
+		userID := "auth0|test"
+		// No goal created
+
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Set("userID", userID)
+		c.Params = gin.Params{{Key: "id", Value: "00000000-0000-0000-0000-000000000000"}}
+
+		handler.GetGoal(c)
+
+		assert.Equal(t, http.StatusNotFound, w.Code)
+	})
+
+	t.Run("OtherUser", func(t *testing.T) {
+		db, cleanup := SetupTestDB(t)
+		defer cleanup()
+		handler := NewGoalHandler(db)
+
+		userID := "auth0|test"
+		otherUserID := "auth0|other"
+		goal := models.Goal{UserID: otherUserID, Title: "Other's Goal"}
+		db.Create(&goal)
+
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Set("userID", userID)
+		c.Params = gin.Params{{Key: "id", Value: goal.ID.String()}}
+
+		handler.GetGoal(c)
+
+		// Should receive 404 because the query includes user_id check
+		assert.Equal(t, http.StatusNotFound, w.Code)
+	})
+}
+
 func TestDeleteGoal(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
@@ -156,4 +222,67 @@ func TestDeleteGoal(t *testing.T) {
 		db.Model(&models.ExcuseEntry{}).Where("id = ?", excuse.ID).Count(&count)
 		assert.Equal(t, int64(0), count)
 	})
+}
+
+func TestGoal_InvalidUUID(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	tests := []struct {
+		name   string
+		method string
+		path   string
+		setup  func(*gin.Engine, *GoalHandler)
+	}{
+		{
+			name:   "GetGoal_InvalidUUID",
+			method: "GET",
+			path:   "/goals/invalid-uuid",
+			setup: func(r *gin.Engine, h *GoalHandler) {
+				r.GET("/goals/:id", h.GetGoal)
+			},
+		},
+		{
+			name:   "PatchGoal_InvalidUUID",
+			method: "PATCH",
+			path:   "/goals/invalid-uuid",
+			setup: func(r *gin.Engine, h *GoalHandler) {
+				r.PATCH("/goals/:id", h.PatchGoal)
+			},
+		},
+		{
+			name:   "DeleteGoal_InvalidUUID",
+			method: "DELETE",
+			path:   "/goals/invalid-uuid",
+			setup: func(r *gin.Engine, h *GoalHandler) {
+				r.DELETE("/goals/:id", h.DeleteGoal)
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			db, cleanup := SetupTestDB(t)
+			defer cleanup()
+			handler := NewGoalHandler(db)
+
+			w := httptest.NewRecorder()
+			_, r := gin.CreateTestContext(w)
+
+			// Dummy Auth Middleware
+			r.Use(func(c *gin.Context) {
+				c.Set("userID", "auth0|test")
+				c.Next()
+			})
+
+			tt.setup(r, handler)
+
+			req, _ := http.NewRequest(tt.method, tt.path, nil)
+			r.ServeHTTP(w, req)
+
+			assert.Equal(t, http.StatusBadRequest, w.Code)
+			var resp map[string]string
+			json.Unmarshal(w.Body.Bytes(), &resp)
+			assert.Equal(t, "入力内容が正しくありません", resp["error"])
+		})
+	}
 }
