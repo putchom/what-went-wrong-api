@@ -38,7 +38,7 @@ func TestGetExcuses_Retention(t *testing.T) {
 		c, _ := gin.CreateTestContext(w)
 		c.Set("userID", userID)
 		c.Set("entitlements", services.Entitlements{LogRetentionDays: &days})
-		c.Params = gin.Params{{Key: "goal_id", Value: goalID.String()}}
+		c.Params = gin.Params{{Key: "id", Value: goalID.String()}}
 		c.Request, _ = http.NewRequest("GET", "/goals/"+goalID.String()+"/excuses", nil)
 
 		handler.GetExcuses(c)
@@ -56,7 +56,7 @@ func TestGetExcuses_Retention(t *testing.T) {
 		c, _ := gin.CreateTestContext(w)
 		c.Set("userID", userID)
 		c.Set("entitlements", services.Entitlements{LogRetentionDays: nil}) // Unlimited
-		c.Params = gin.Params{{Key: "goal_id", Value: goalID.String()}}
+		c.Params = gin.Params{{Key: "id", Value: goalID.String()}}
 		c.Request, _ = http.NewRequest("GET", "/goals/"+goalID.String()+"/excuses", nil)
 
 		handler.GetExcuses(c)
@@ -83,7 +83,7 @@ func TestPostExcuse_Upsert(t *testing.T) {
 	c, _ := gin.CreateTestContext(w)
 	c.Set("userID", userID)
 	c.Set("entitlements", services.Entitlements{})
-	c.Params = gin.Params{{Key: "goal_id", Value: goalID.String()}}
+	c.Params = gin.Params{{Key: "id", Value: goalID.String()}}
 
 	reqBody := `{"date": "` + today + `", "excuseText": "First Excuse"}`
 	c.Request, _ = http.NewRequest("POST", "/goals/"+goalID.String()+"/excuses", strings.NewReader(reqBody))
@@ -101,7 +101,7 @@ func TestPostExcuse_Upsert(t *testing.T) {
 	c, _ = gin.CreateTestContext(w)
 	c.Set("userID", userID)
 	c.Set("entitlements", services.Entitlements{})
-	c.Params = gin.Params{{Key: "goal_id", Value: goalID.String()}}
+	c.Params = gin.Params{{Key: "id", Value: goalID.String()}}
 
 	reqBody = `{"date": "` + today + `", "excuseText": "Updated Excuse"}`
 	c.Request, _ = http.NewRequest("POST", "/goals/"+goalID.String()+"/excuses", strings.NewReader(reqBody))
@@ -134,7 +134,7 @@ func TestPostExcuse_PremiumTemplate(t *testing.T) {
 	c, _ := gin.CreateTestContext(w)
 	c.Set("userID", userID)
 	c.Set("entitlements", services.Entitlements{CanUsePremiumTemplates: false})
-	c.Params = gin.Params{{Key: "goal_id", Value: goalID.String()}}
+	c.Params = gin.Params{{Key: "id", Value: goalID.String()}}
 
 	reqBody := `{"date": "` + today + `", "excuseText": "Using Premium", "templateId": "tmpl-premium"}`
 	c.Request, _ = http.NewRequest("POST", "/goals/"+goalID.String()+"/excuses", strings.NewReader(reqBody))

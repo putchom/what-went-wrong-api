@@ -59,6 +59,51 @@ func (h *GoalHandler) GetGoals(c *gin.Context) {
 	c.JSON(http.StatusOK, res)
 }
 
+// GetGoal godoc
+// @Summary Get goal details
+// @Description Get a single goal by ID
+// @Tags goals
+// @Accept json
+// @Produce json
+// @Param id path string true "Goal ID"
+// @Success 200 {object} CreateGoalResponse
+// @Failure 401 {object} GoalUnauthorizedResponse
+// @Failure 404 {object} GoalNotFoundErrorResponse
+// @Failure 500 {object} GoalFetchErrorResponse
+// @Security BearerAuth
+// @Router /goals/{id} [get]
+func (h *GoalHandler) GetGoal(c *gin.Context) {
+	goalID := c.Param("id")
+	userIDStr, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "認証されていません"})
+		return
+	}
+	userID := userIDStr.(string)
+
+	var goal models.Goal
+	if err := h.db.First(&goal, "id = ? AND user_id = ?", goalID, userID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "目標が見つかりません"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "目標の取得に失敗しました"})
+		return
+	}
+
+	c.JSON(http.StatusOK, CreateGoalResponse{
+		Goal: GoalResponse{
+			ID:                  goal.ID.String(),
+			Title:               goal.Title,
+			NotificationTime:    goal.NotificationTime,
+			NotificationEnabled: goal.NotificationEnabled,
+			Order:               goal.Order,
+			CreatedAt:           goal.CreatedAt,
+			UpdatedAt:           goal.UpdatedAt,
+		},
+	})
+}
+
 // PostGoals godoc
 // @Summary Create goal
 // @Description Create a new goal. Checks for plan limits.

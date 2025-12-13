@@ -104,6 +104,72 @@ func TestGetGoals(t *testing.T) {
 	})
 }
 
+func TestGetGoal(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	t.Run("Success", func(t *testing.T) {
+		db, cleanup := SetupTestDB(t)
+		defer cleanup()
+		handler := NewGoalHandler(db)
+
+		userID := "auth0|test"
+		goal := models.Goal{UserID: userID, Title: "Fetch Me"}
+		db.Create(&goal)
+
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Set("userID", userID)
+		c.Params = gin.Params{{Key: "id", Value: goal.ID.String()}}
+
+		handler.GetGoal(c)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+		var resp CreateGoalResponse
+		json.Unmarshal(w.Body.Bytes(), &resp)
+		assert.Equal(t, "Fetch Me", resp.Goal.Title)
+		assert.Equal(t, goal.ID.String(), resp.Goal.ID)
+	})
+
+	t.Run("NotFound", func(t *testing.T) {
+		db, cleanup := SetupTestDB(t)
+		defer cleanup()
+		handler := NewGoalHandler(db)
+
+		userID := "auth0|test"
+		// No goal created
+
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Set("userID", userID)
+		c.Params = gin.Params{{Key: "id", Value: "00000000-0000-0000-0000-000000000000"}}
+
+		handler.GetGoal(c)
+
+		assert.Equal(t, http.StatusNotFound, w.Code)
+	})
+
+	t.Run("OtherUser", func(t *testing.T) {
+		db, cleanup := SetupTestDB(t)
+		defer cleanup()
+		handler := NewGoalHandler(db)
+
+		userID := "auth0|test"
+		otherUserID := "auth0|other"
+		goal := models.Goal{UserID: otherUserID, Title: "Other's Goal"}
+		db.Create(&goal)
+
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Set("userID", userID)
+		c.Params = gin.Params{{Key: "id", Value: goal.ID.String()}}
+
+		handler.GetGoal(c)
+
+		// Should receive 404 because the query includes user_id check
+		assert.Equal(t, http.StatusNotFound, w.Code)
+	})
+}
+
 func TestDeleteGoal(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 

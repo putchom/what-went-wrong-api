@@ -782,6 +782,40 @@ paths:
       summary: Delete goal
       tags:
       - goals
+    get:
+      consumes:
+      - application/json
+      description: Get a single goal by ID
+      parameters:
+      - description: Goal ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.CreateGoalResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.GoalUnauthorizedResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.GoalNotFoundErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.GoalFetchErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get goal details
+      tags:
+      - goals
     patch:
       consumes:
       - application/json

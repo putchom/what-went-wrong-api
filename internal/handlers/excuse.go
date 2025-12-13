@@ -43,7 +43,8 @@ func (h *ExcuseHandler) GetExcuses(c *gin.Context) {
 	}
 	userID := userIdStr.(string)
 
-	goalIDStr := c.Param("goal_id")
+	// Gin conflict: :id param is used for /goals/:id
+	goalIDStr := c.Param("id")
 	goalID, err := uuid.Parse(goalIDStr)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "入力内容が正しくありません"})
@@ -119,7 +120,8 @@ func (h *ExcuseHandler) GetExcuseToday(c *gin.Context) {
 	}
 	userID := userIdStr.(string)
 
-	goalIDStr := c.Param("goal_id")
+	// Gin conflict: :id param is used for /goals/:id
+	goalIDStr := c.Param("id")
 	goalID, err := uuid.Parse(goalIDStr)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "入力内容が正しくありません"})
@@ -166,7 +168,8 @@ func (h *ExcuseHandler) GetExcuseToday(c *gin.Context) {
 func (h *ExcuseHandler) PostExcuse(c *gin.Context) {
 	userIdStr, _ := c.Get("userID")
 	userID := userIdStr.(string)
-	goalIDStr := c.Param("goal_id")
+	// Gin conflict: :id param is used for /goals/:id
+	goalIDStr := c.Param("id")
 	goalID, err := uuid.Parse(goalIDStr)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "入力内容が正しくありません"})

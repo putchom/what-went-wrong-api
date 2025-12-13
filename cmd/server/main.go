@@ -97,14 +97,15 @@ func main() {
 		v1.POST("/ai-excuse", aiHandler.PostAiExcuse)
 		v1.GET("/goals", goalHandler.GetGoals)
 		v1.POST("/goals", goalHandler.PostGoals)
+		v1.GET("/goals/:id", goalHandler.GetGoal)
 		v1.PATCH("/goals/:id", goalHandler.PatchGoal)
 		v1.DELETE("/goals/:id", goalHandler.DeleteGoal)
 		v1.GET("/excuse-templates", excuseTemplateHandler.GetExcuseTemplates)
 		v1.GET("/excuse-templates/:id", excuseTemplateHandler.GetExcuseTemplate)
 
-		v1.GET("/goals/:goal_id/excuses", excuseHandler.GetExcuses)
-		v1.GET("/goals/:goal_id/excuses/today", excuseHandler.GetExcuseToday)
-		v1.POST("/goals/:goal_id/excuses", excuseHandler.PostExcuse)
+		v1.GET("/goals/:id/excuses", excuseHandler.GetExcuses)
+		v1.GET("/goals/:id/excuses/today", excuseHandler.GetExcuseToday)
+		v1.POST("/goals/:id/excuses", excuseHandler.PostExcuse)
 		v1.PATCH("/excuses/:id", excuseHandler.PatchExcuse)
 		v1.DELETE("/excuses/:id", excuseHandler.DeleteExcuse)
 	}
