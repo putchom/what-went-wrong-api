@@ -8,6 +8,7 @@ import (
 	"what-went-wrong-api/internal/services"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -65,7 +66,7 @@ func (h *GoalHandler) GetGoals(c *gin.Context) {
 // @Tags goals
 // @Accept json
 // @Produce json
-// @Param id path string true "Goal ID"
+// @Param id path string true "Goal ID" format:uuid
 // @Success 200 {object} CreateGoalResponse
 // @Failure 401 {object} GoalUnauthorizedResponse
 // @Failure 404 {object} GoalNotFoundErrorResponse
@@ -73,7 +74,12 @@ func (h *GoalHandler) GetGoals(c *gin.Context) {
 // @Security BearerAuth
 // @Router /goals/{id} [get]
 func (h *GoalHandler) GetGoal(c *gin.Context) {
-	goalID := c.Param("id")
+	goalIDStr := c.Param("id")
+	goalID, err := uuid.Parse(goalIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "入力内容が正しくありません"})
+		return
+	}
 	userIDStr, exists := c.Get("userID")
 	if !exists {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "認証されていません"})
@@ -111,7 +117,7 @@ func (h *GoalHandler) GetGoal(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param request body CreateGoalRequest true "Request body"
-// @Success 201 {object} CreateGoalResponse
+// @Success 200 {object} CreateGoalResponse
 // @Failure 400 {object} GoalValidationErrorResponse
 // @Failure 401 {object} GoalUnauthorizedResponse
 // @Failure 403 {object} GoalLimitReachedResponse "Forbidden if max goals reached"
@@ -185,7 +191,7 @@ func (h *GoalHandler) PostGoals(c *gin.Context) {
 // @Tags goals
 // @Accept json
 // @Produce json
-// @Param id path string true "Goal ID"
+// @Param id path string true "Goal ID" format:uuid
 // @Param request body UpdateGoalRequest true "Request body"
 // @Success 200 {object} CreateGoalResponse
 // @Failure 400 {object} GoalValidationErrorResponse
@@ -195,7 +201,12 @@ func (h *GoalHandler) PostGoals(c *gin.Context) {
 // @Security BearerAuth
 // @Router /goals/{id} [patch]
 func (h *GoalHandler) PatchGoal(c *gin.Context) {
-	goalID := c.Param("id")
+	goalIDStr := c.Param("id")
+	goalID, err := uuid.Parse(goalIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "入力内容が正しくありません"})
+		return
+	}
 	userIDStr, _ := c.Get("userID")
 	userID := userIDStr.(string)
 
@@ -249,15 +260,21 @@ func (h *GoalHandler) PatchGoal(c *gin.Context) {
 // @Tags goals
 // @Accept json
 // @Produce json
-// @Param id path string true "Goal ID"
+// @Param id path string true "Goal ID" format:uuid
 // @Success 204 "No Content"
+// @Failure 400 {object} GoalValidationErrorResponse
 // @Failure 401 {object} GoalUnauthorizedResponse
 // @Failure 404 {object} GoalNotFoundErrorResponse
 // @Failure 500 {object} GoalDeleteErrorResponse
 // @Security BearerAuth
 // @Router /goals/{id} [delete]
 func (h *GoalHandler) DeleteGoal(c *gin.Context) {
-	goalID := c.Param("id")
+	goalIDStr := c.Param("id")
+	goalID, err := uuid.Parse(goalIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "入力内容が正しくありません"})
+		return
+	}
 	userIDStr, _ := c.Get("userID")
 	userID := userIDStr.(string)
 
@@ -265,7 +282,7 @@ func (h *GoalHandler) DeleteGoal(c *gin.Context) {
 	// Assuming cascade delete is configured in DB or we handle it here
 	// Spec says: Goal削除＋紐づくExcuseEntry削除
 
-	err := h.db.Transaction(func(tx *gorm.DB) error {
+	err = h.db.Transaction(func(tx *gorm.DB) error {
 		// Verify ownership
 		var goal models.Goal
 		if err := tx.First(&goal, "id = ? AND user_id = ?", goalID, userID).Error; err != nil {
