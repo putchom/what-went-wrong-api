@@ -43,7 +43,6 @@ func (h *ExcuseHandler) GetExcuses(c *gin.Context) {
 	}
 	userID := userIdStr.(string)
 
-	// Gin conflict: :id param is used for /goals/:id
 	goalIDStr := c.Param("id")
 	goalID, err := uuid.Parse(goalIDStr)
 	if err != nil {
@@ -120,7 +119,6 @@ func (h *ExcuseHandler) GetExcuseToday(c *gin.Context) {
 	}
 	userID := userIdStr.(string)
 
-	// Gin conflict: :id param is used for /goals/:id
 	goalIDStr := c.Param("id")
 	goalID, err := uuid.Parse(goalIDStr)
 	if err != nil {
@@ -168,7 +166,6 @@ func (h *ExcuseHandler) GetExcuseToday(c *gin.Context) {
 func (h *ExcuseHandler) PostExcuse(c *gin.Context) {
 	userIdStr, _ := c.Get("userID")
 	userID := userIdStr.(string)
-	// Gin conflict: :id param is used for /goals/:id
 	goalIDStr := c.Param("id")
 	goalID, err := uuid.Parse(goalIDStr)
 	if err != nil {
